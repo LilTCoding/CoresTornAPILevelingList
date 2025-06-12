@@ -1,10 +1,12 @@
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import ReactDOM from "react-dom/client";
+import { Toaster } from "sonner";
+import { ThemeProvider } from "@/components/theme-provider";
 import Loader from "./components/loader";
 import { routeTree } from "./routeTree.gen";
-
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient, trpc } from "./utils/trpc";
+import "./index.css";
 
 const router = createRouter({
 	routeTree,
@@ -13,7 +15,12 @@ const router = createRouter({
 	context: { trpc, queryClient },
 	Wrap: function WrapComponent({ children }: { children: React.ReactNode }) {
 		return (
-			<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+			<QueryClientProvider client={queryClient}>
+				<ThemeProvider defaultTheme="dark" storageKey="torn-api-theme">
+					{children}
+					<Toaster position="top-right" />
+				</ThemeProvider>
+			</QueryClientProvider>
 		);
 	},
 });

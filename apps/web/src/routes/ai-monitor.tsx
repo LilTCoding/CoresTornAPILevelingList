@@ -32,21 +32,42 @@ export function AIMonitor() {
 			setError(null)
 
 			const response = await fetch(`https://api.torn.com/user/?selections=profile&key=${apiKey}`)
+			
+			// Check if response is ok before trying to parse JSON
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`)
+			}
+
+			// Check content type to ensure it's JSON
+			const contentType = response.headers.get('content-type')
+			if (!contentType || !contentType.includes('application/json')) {
+				throw new Error('Server did not return JSON')
+			}
+
 			const data = await response.json()
 
 			if (data.error) {
 				throw new Error(data.error)
 			}
 
+			// Ensure data is an object before processing
+			if (typeof data !== 'object' || data === null) {
+				throw new Error('Invalid data format received from server')
+			}
+
 			const players = Object.entries(data)
-				.filter(([_, player]: [string, any]) => player.status?.state === 'Abroad')
+				.filter(([_, player]: [string, any]) => 
+					player && 
+					typeof player === 'object' && 
+					player.status?.state === 'Abroad'
+				)
 				.map(([id, player]: [string, any]) => ({
 					id,
-					name: player.name,
-					level: player.level,
+					name: player.name || 'Unknown',
+					level: player.level || 0,
 					status: player.status.state,
 					timeLeft: player.status.until - Math.floor(Date.now() / 1000),
-					xid: player.player_id
+					xid: player.player_id || id
 				}))
 
 			setAIPlayers(players)

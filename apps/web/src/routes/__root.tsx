@@ -1,7 +1,7 @@
 import Header from "@/components/header";
 import Loader from "@/components/loader";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "sonner";
 import type { trpc } from "@/utils/trpc";
 import type { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -24,11 +24,11 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 	head: () => ({
 		meta: [
 			{
-				title: "My App",
+				title: "Torn API Tools",
 			},
 			{
 				name: "description",
-				content: "My App is a web application",
+				content: "A collection of tools for Torn City using the Torn API",
 			},
 		],
 		links: [
@@ -48,15 +48,21 @@ function RootComponent() {
 	return (
 		<>
 			<HeadContent />
-			<ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+			<ThemeProvider defaultTheme="dark" storageKey="torn-api-theme">
 				<div className="grid h-svh grid-rows-[auto_1fr]">
 					<Header />
-					{isFetching ? <Loader /> : <Outlet />}
+					<main className="container mx-auto p-4">
+						{isFetching ? <Loader /> : <Outlet />}
+					</main>
 				</div>
-				<Toaster richColors />
+				<Toaster position="top-right" richColors />
 			</ThemeProvider>
-			<TanStackRouterDevtools position="bottom-left" />
-			<ReactQueryDevtools position="bottom" buttonPosition="bottom-right" />
+			{process.env.NODE_ENV === "development" && (
+				<>
+					<TanStackRouterDevtools position="bottom-left" />
+					<ReactQueryDevtools position="bottom" buttonPosition="bottom-right" />
+				</>
+			)}
 		</>
 	);
 }
