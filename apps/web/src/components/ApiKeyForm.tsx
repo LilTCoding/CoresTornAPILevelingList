@@ -1,37 +1,27 @@
-import { useStore } from "../store";
+import type { Dispatch, SetStateAction } from "react";
 
-const ApiKeyForm = () => {
-	const { apiKey, setApiKey } = useStore();
+interface ApiKeyFormProps {
+	apiKey: string;
+	onApiKeyChange: Dispatch<SetStateAction<string>>;
+}
 
-	const handleSubmit = (e: React.FormEvent) => {
-		e.preventDefault();
-		localStorage.setItem("apiKey", apiKey);
-	};
-
+export default function ApiKeyForm({
+	apiKey,
+	onApiKeyChange,
+}: ApiKeyFormProps) {
 	return (
-		<form
-			onSubmit={handleSubmit}
-			className="mb-4 rounded-lg bg-gray-800 p-4 shadow-lg"
-		>
+		<div className="mb-4">
 			<label htmlFor="apiKey" className="mb-2 block font-medium text-sm">
-				API Key
+				Torn API Key
 			</label>
 			<input
+				type="password"
 				id="apiKey"
-				type="text"
 				value={apiKey}
-				onChange={(e) => setApiKey(e.target.value)}
-				className="w-full rounded-md bg-gray-700 p-2 text-white"
+				onChange={(e) => onApiKeyChange(e.target.value)}
+				className="w-full rounded border border-gray-600 bg-gray-700 p-2 text-white"
 				placeholder="Enter your Torn API key"
 			/>
-			<button
-				type="submit"
-				className="mt-2 w-full rounded-md bg-cyan-500 p-2 text-black hover:bg-cyan-600"
-			>
-				Save API Key
-			</button>
-		</form>
+		</div>
 	);
-};
-
-export default ApiKeyForm;
+}

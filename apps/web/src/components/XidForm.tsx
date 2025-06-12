@@ -1,39 +1,26 @@
-import { useStore } from "../store";
+import type { Dispatch, SetStateAction } from "react";
 
-const XidForm = () => {
-	const { xids, setXids } = useStore();
+interface XidFormProps {
+	xids: string[];
+	onXidsChange: Dispatch<SetStateAction<string[]>>;
+}
 
-	const handleSubmit = (e: React.FormEvent) => {
-		e.preventDefault();
-		localStorage.setItem("xids", xids.join(","));
-	};
-
+export default function XidForm({ xids, onXidsChange }: XidFormProps) {
 	return (
-		<form
-			onSubmit={handleSubmit}
-			className="mb-4 rounded-lg bg-gray-800 p-4 shadow-lg"
-		>
+		<div className="mb-4">
 			<label htmlFor="xids" className="mb-2 block font-medium text-sm">
 				XIDs (comma-separated)
 			</label>
 			<input
-				id="xids"
 				type="text"
+				id="xids"
 				value={xids.join(",")}
 				onChange={(e) =>
-					setXids(e.target.value.split(",").map((x) => x.trim()))
+					onXidsChange(e.target.value.split(",").map((x) => x.trim()))
 				}
-				className="w-full rounded-md bg-gray-700 p-2 text-white"
-				placeholder="1776074,1999595"
+				className="w-full rounded border border-gray-600 bg-gray-700 p-2 text-white"
+				placeholder="Enter XIDs (e.g., 1,2,3)"
 			/>
-			<button
-				type="submit"
-				className="mt-2 w-full rounded-md bg-cyan-500 p-2 text-black hover:bg-cyan-600"
-			>
-				Save XIDs
-			</button>
-		</form>
+		</div>
 	);
-};
-
-export default XidForm;
+}

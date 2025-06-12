@@ -59,7 +59,7 @@ export default function HospitalMonitor() {
 			setStatuses(results);
 
 			// Check for hospital status changes
-			results.forEach((status) => {
+			for (const status of results) {
 				if (status.status?.state === "hospital") {
 					const notification = `${status.name} is in hospital until ${new Date(
 						status.status.until * 1000,
@@ -68,7 +68,7 @@ export default function HospitalMonitor() {
 						setNotifications((prev) => [...prev, notification]);
 					}
 				}
-			});
+			}
 		} catch (err) {
 			console.error("Error fetching statuses:", err);
 		} finally {

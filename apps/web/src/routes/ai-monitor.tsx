@@ -60,7 +60,7 @@ export default function AIMonitor() {
 			setStatusesState(results);
 
 			// Check for status changes
-			results.forEach((status) => {
+			for (const status of results) {
 				if (status.status?.state === "hospital") {
 					const notification = `${status.name} is in hospital until ${new Date(
 						status.status.until * 1000,
@@ -69,13 +69,13 @@ export default function AIMonitor() {
 						setNotifications((prev) => [...prev, notification]);
 					}
 				}
-			});
+			}
 		} catch (err) {
 			console.error("Error fetching statuses:", err);
 		} finally {
 			setLoading(false);
 		}
-	}, [apiKey, xids, notifications]);
+	}, [apiKey, xids, notifications, setLoading]);
 
 	useEffect(() => {
 		if (apiKey && xids.length > 0) {
