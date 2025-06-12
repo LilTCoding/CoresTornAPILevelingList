@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import ApiKeyForm from "../components/ApiKeyForm";
 import NotificationPanel from "../components/NotificationPanel";
 import XidForm from "../components/XidForm";
+import { createFileRoute } from "@tanstack/react-router";
 
 interface UserStatus {
 	xid: number;
@@ -13,7 +14,7 @@ interface UserStatus {
 	error?: string;
 }
 
-export default function HospitalMonitor() {
+function HospitalMonitor() {
 	const [apiKey, setApiKey] = useState<string>("");
 	const [xids, setXids] = useState<string[]>([]);
 	const [statuses, setStatuses] = useState<UserStatus[]>([]);
@@ -37,7 +38,7 @@ export default function HospitalMonitor() {
 		setLoading(true);
 		try {
 			const results = await Promise.all(
-				xids.map(async (xid) => {
+				xids.map(async (xid: string) => {
 					try {
 						const response = await fetch(
 							`https://api.torn.com/user/${xid}?selections=profile&key=${apiKey}`,
@@ -139,3 +140,7 @@ export default function HospitalMonitor() {
 		</div>
 	);
 }
+
+export const Route = createFileRoute('/hospital-monitor')({
+	component: HospitalMonitor,
+});

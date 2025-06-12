@@ -1,0 +1,137 @@
+.clean-travel {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+    max-width: 800px;
+}
+
+.script-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.script-header h2 {
+    margin: 0;
+    color: #333;
+    font-size: 1.8em;
+}
+
+.category-badge {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.script-description {
+    color: #666;
+    font-size: 1.1em;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.script-features {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.script-features h3 {
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+}
+
+.script-features ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.script-features li {
+    color: #555;
+    padding: 8px 0;
+    padding-left: 25px;
+    position: relative;
+}
+
+.script-features li:before {
+    content: "✓";
+    color: #4CAF50;
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+}
+
+.script-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.script-actions button {
+    flex: 1;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.script-actions button:hover {
+    background-color: #45a049;
+}
+
+.script-actions button.installed {
+    background-color: #9e9e9e;
+    cursor: default;
+}
+
+.script-actions .view-source {
+    flex: 1;
+    padding: 12px 24px;
+    border: 1px solid #4CAF50;
+    border-radius: 5px;
+    color: #4CAF50;
+    text-decoration: none;
+    text-align: center;
+    font-size: 1.1em;
+    transition: all 0.3s ease;
+}
+
+.script-actions .view-source:hover {
+    background-color: #4CAF50;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .clean-travel {
+        margin: 10px;
+        padding: 15px;
+    }
+
+    .script-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .script-actions {
+        flex-direction: column;
+    }
+
+    .script-actions button,
+    .script-actions .view-source {
+        width: 100%;
+    }
+} 

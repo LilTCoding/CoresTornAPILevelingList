@@ -5,6 +5,7 @@ import NotificationPanel from "../components/NotificationPanel";
 import StatusDisplay from "../components/StatusDisplay";
 import XidForm from "../components/XidForm";
 import { useStore } from "../store";
+import { createFileRoute } from "@tanstack/react-router";
 
 interface UserStatus {
 	xid: number;
@@ -16,8 +17,8 @@ interface UserStatus {
 	error?: string;
 }
 
-export default function AIMonitor() {
-	const { apiKey, xids, setStatuses, setLoading } = useStore();
+function AIMonitor() {
+	const { apiKey, xids, setStatuses, setLoading, setApiKey, setXids } = useStore();
 	const [statuses, setStatusesState] = useState<UserStatus[]>([]);
 	const [notifications, setNotifications] = useState<string[]>([]);
 
@@ -26,7 +27,7 @@ export default function AIMonitor() {
 		const savedXids = localStorage.getItem("aiXids");
 		if (savedApiKey) setApiKey(savedApiKey);
 		if (savedXids) setXids(JSON.parse(savedXids));
-	}, []);
+	}, [setApiKey, setXids]);
 
 	const saveToLocalStorage = () => {
 		localStorage.setItem("tornApiKey", apiKey);
@@ -38,7 +39,7 @@ export default function AIMonitor() {
 		setLoading(true);
 		try {
 			const results = await Promise.all(
-				xids.map(async (xid) => {
+				xids.map(async (xid: string) => {
 					try {
 						const response = await fetch(
 							`https://api.torn.com/user/${xid}?selections=profile&key=${apiKey}`,
@@ -92,9 +93,9 @@ export default function AIMonitor() {
 			</h1>
 			<div className="grid grid-cols-1 gap-6 md:grid-cols-3">
 				<div className="md:col-span-1">
-					<ApiKeyForm />
-					<XidForm />
-					<NotificationPanel />
+					<ApiKeyForm apiKey={apiKey} onApiKeyChange={setApiKey} />
+					<XidForm xids={xids} onXidsChange={setXids} />
+					<NotificationPanel notifications={notifications} onClear={() => setNotifications([])} />
 				</div>
 				<div className="md:col-span-2">
 					<StatusDisplay />
@@ -104,3 +105,7 @@ export default function AIMonitor() {
 		</div>
 	);
 }
+
+export const Route = createFileRoute('/ai-monitor')({
+	component: AIMonitor,
+});

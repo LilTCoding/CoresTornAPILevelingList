@@ -9,12 +9,27 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TorntoolsbycoreRouteImport } from './routes/torntoolsbycore'
+import { Route as TornScriptsRouteImport } from './routes/torn-scripts'
 import { Route as TornAccountRouteImport } from './routes/torn-account'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LevellingListRouteImport } from './routes/levelling-list'
+import { Route as HospitalMonitorRouteImport } from './routes/hospital-monitor'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CleanTravelRouteImport } from './routes/clean-travel'
+import { Route as AiMonitorRouteImport } from './routes/ai-monitor'
 import { Route as IndexRouteImport } from './routes/index'
 
+const TorntoolsbycoreRoute = TorntoolsbycoreRouteImport.update({
+  id: '/torntoolsbycore',
+  path: '/torntoolsbycore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TornScriptsRoute = TornScriptsRouteImport.update({
+  id: '/torn-scripts',
+  path: '/torn-scripts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TornAccountRoute = TornAccountRouteImport.update({
   id: '/torn-account',
   path: '/torn-account',
@@ -30,9 +45,24 @@ const LevellingListRoute = LevellingListRouteImport.update({
   path: '/levelling-list',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HospitalMonitorRoute = HospitalMonitorRouteImport.update({
+  id: '/hospital-monitor',
+  path: '/hospital-monitor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CleanTravelRoute = CleanTravelRouteImport.update({
+  id: '/clean-travel',
+  path: '/clean-travel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiMonitorRoute = AiMonitorRouteImport.update({
+  id: '/ai-monitor',
+  path: '/ai-monitor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -43,50 +73,109 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ai-monitor': typeof AiMonitorRoute
+  '/clean-travel': typeof CleanTravelRoute
   '/dashboard': typeof DashboardRoute
+  '/hospital-monitor': typeof HospitalMonitorRoute
   '/levelling-list': typeof LevellingListRoute
   '/login': typeof LoginRoute
   '/torn-account': typeof TornAccountRoute
+  '/torn-scripts': typeof TornScriptsRoute
+  '/torntoolsbycore': typeof TorntoolsbycoreRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ai-monitor': typeof AiMonitorRoute
+  '/clean-travel': typeof CleanTravelRoute
   '/dashboard': typeof DashboardRoute
+  '/hospital-monitor': typeof HospitalMonitorRoute
   '/levelling-list': typeof LevellingListRoute
   '/login': typeof LoginRoute
   '/torn-account': typeof TornAccountRoute
+  '/torn-scripts': typeof TornScriptsRoute
+  '/torntoolsbycore': typeof TorntoolsbycoreRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ai-monitor': typeof AiMonitorRoute
+  '/clean-travel': typeof CleanTravelRoute
   '/dashboard': typeof DashboardRoute
+  '/hospital-monitor': typeof HospitalMonitorRoute
   '/levelling-list': typeof LevellingListRoute
   '/login': typeof LoginRoute
   '/torn-account': typeof TornAccountRoute
+  '/torn-scripts': typeof TornScriptsRoute
+  '/torntoolsbycore': typeof TorntoolsbycoreRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/levelling-list' | '/login' | '/torn-account'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/levelling-list' | '/login' | '/torn-account'
-  id:
-    | '__root__'
+  fullPaths:
     | '/'
+    | '/ai-monitor'
+    | '/clean-travel'
     | '/dashboard'
+    | '/hospital-monitor'
     | '/levelling-list'
     | '/login'
     | '/torn-account'
+    | '/torn-scripts'
+    | '/torntoolsbycore'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/ai-monitor'
+    | '/clean-travel'
+    | '/dashboard'
+    | '/hospital-monitor'
+    | '/levelling-list'
+    | '/login'
+    | '/torn-account'
+    | '/torn-scripts'
+    | '/torntoolsbycore'
+  id:
+    | '__root__'
+    | '/'
+    | '/ai-monitor'
+    | '/clean-travel'
+    | '/dashboard'
+    | '/hospital-monitor'
+    | '/levelling-list'
+    | '/login'
+    | '/torn-account'
+    | '/torn-scripts'
+    | '/torntoolsbycore'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AiMonitorRoute: typeof AiMonitorRoute
+  CleanTravelRoute: typeof CleanTravelRoute
   DashboardRoute: typeof DashboardRoute
+  HospitalMonitorRoute: typeof HospitalMonitorRoute
   LevellingListRoute: typeof LevellingListRoute
   LoginRoute: typeof LoginRoute
   TornAccountRoute: typeof TornAccountRoute
+  TornScriptsRoute: typeof TornScriptsRoute
+  TorntoolsbycoreRoute: typeof TorntoolsbycoreRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/torntoolsbycore': {
+      id: '/torntoolsbycore'
+      path: '/torntoolsbycore'
+      fullPath: '/torntoolsbycore'
+      preLoaderRoute: typeof TorntoolsbycoreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/torn-scripts': {
+      id: '/torn-scripts'
+      path: '/torn-scripts'
+      fullPath: '/torn-scripts'
+      preLoaderRoute: typeof TornScriptsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/torn-account': {
       id: '/torn-account'
       path: '/torn-account'
@@ -108,11 +197,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LevellingListRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hospital-monitor': {
+      id: '/hospital-monitor'
+      path: '/hospital-monitor'
+      fullPath: '/hospital-monitor'
+      preLoaderRoute: typeof HospitalMonitorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clean-travel': {
+      id: '/clean-travel'
+      path: '/clean-travel'
+      fullPath: '/clean-travel'
+      preLoaderRoute: typeof CleanTravelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-monitor': {
+      id: '/ai-monitor'
+      path: '/ai-monitor'
+      fullPath: '/ai-monitor'
+      preLoaderRoute: typeof AiMonitorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -127,10 +237,15 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AiMonitorRoute: AiMonitorRoute,
+  CleanTravelRoute: CleanTravelRoute,
   DashboardRoute: DashboardRoute,
+  HospitalMonitorRoute: HospitalMonitorRoute,
   LevellingListRoute: LevellingListRoute,
   LoginRoute: LoginRoute,
   TornAccountRoute: TornAccountRoute,
+  TornScriptsRoute: TornScriptsRoute,
+  TorntoolsbycoreRoute: TorntoolsbycoreRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
