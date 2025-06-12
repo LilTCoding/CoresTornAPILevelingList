@@ -1,0 +1,246 @@
+.torn-scripts {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.torn-scripts h2 {
+    color: #333;
+    margin-bottom: 30px;
+    text-align: center;
+    font-size: 2em;
+}
+
+.scripts-controls {
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.search-box {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 12px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 25px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.2);
+}
+
+.category-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.category-filter button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    background-color: #f0f0f0;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.category-filter button:hover {
+    background-color: #e0e0e0;
+}
+
+.category-filter button.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.scripts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.script-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.script-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.script-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.script-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.2em;
+}
+
+.category-badge {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 500;
+}
+
+.script-description {
+    color: #666;
+    font-size: 0.9em;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.script-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.script-actions button {
+    flex: 1;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.script-actions button:hover {
+    background-color: #45a049;
+}
+
+.script-actions button.installed {
+    background-color: #9e9e9e;
+    cursor: default;
+}
+
+.script-actions .view-source {
+    flex: 1;
+    padding: 8px 16px;
+    border: 1px solid #4CAF50;
+    border-radius: 5px;
+    color: #4CAF50;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.script-actions .view-source:hover {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.install-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content h3 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 1.5em;
+}
+
+.modal-content p {
+    color: #666;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.modal-actions button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.modal-actions button:first-child {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.modal-actions button:first-child:hover {
+    background-color: #45a049;
+}
+
+.modal-actions button:last-child {
+    background-color: #f0f0f0;
+    color: #666;
+}
+
+.modal-actions button:last-child:hover {
+    background-color: #e0e0e0;
+}
+
+@media (max-width: 768px) {
+    .scripts-controls {
+        padding: 0 10px;
+    }
+
+    .category-filter {
+        overflow-x: auto;
+        padding-bottom: 10px;
+    }
+
+    .category-filter button {
+        white-space: nowrap;
+    }
+
+    .scripts-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+} 

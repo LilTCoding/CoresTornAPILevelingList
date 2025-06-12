@@ -11,6 +11,7 @@ export default function Header() {
 		{ to: "/hospital-monitor", label: "Hospital Monitor" },
 		{ to: "/ai-monitor", label: "AI Monitor" },
 		{ to: "/levelling-list", label: "Levelling List" },
+		{ to: "/torn-scripts", label: "Torn Scripts" },
 	];
 
 	return (
