@@ -1,146 +1,187 @@
-import { useCallback, useEffect, useState } from "react";
-import ApiKeyForm from "../components/ApiKeyForm";
-import NotificationPanel from "../components/NotificationPanel";
-import XidForm from "../components/XidForm";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
+import { useStore } from '@/store'
+import './hospital-monitor.css'
 
-interface UserStatus {
-	xid: number;
-	name?: string;
-	status?: {
-		state: string;
-		until: number;
-	};
-	error?: string;
+interface HospitalizedPlayer {
+	id: string
+	name: string
+	level: number
+	status: string
+	timeLeft: number
+	xid: string
 }
 
-function HospitalMonitor() {
-	const [apiKey, setApiKey] = useState<string>("");
-	const [xids, setXids] = useState<string[]>([]);
-	const [statuses, setStatuses] = useState<UserStatus[]>([]);
-	const [loading, setLoading] = useState(false);
-	const [notifications, setNotifications] = useState<string[]>([]);
+export function HospitalMonitor() {
+	const { apiKey } = useStore()
+	const [hospitalizedPlayers, setHospitalizedPlayers] = useState<HospitalizedPlayer[]>([])
+	const [loading, setLoading] = useState(true)
+	const [error, setError] = useState<string | null>(null)
+	const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
+	const [autoUpdate, setAutoUpdate] = useState(true)
 
-	useEffect(() => {
-		const savedApiKey = localStorage.getItem("tornApiKey");
-		const savedXids = localStorage.getItem("hospitalXids");
-		if (savedApiKey) setApiKey(savedApiKey);
-		if (savedXids) setXids(JSON.parse(savedXids));
-	}, []);
+	const fetchHospitalStatus = async () => {
+		if (!apiKey) {
+			setError('API key is required')
+			setLoading(false)
+			return
+		}
 
-	const saveToLocalStorage = () => {
-		localStorage.setItem("tornApiKey", apiKey);
-		localStorage.setItem("hospitalXids", JSON.stringify(xids));
-	};
-
-	const fetchStatuses = useCallback(async () => {
-		if (!apiKey || xids.length === 0) return;
-		setLoading(true);
 		try {
-			const results = await Promise.all(
-				xids.map(async (xid: string) => {
-					try {
-						const response = await fetch(
-							`https://api.torn.com/user/${xid}?selections=profile&key=${apiKey}`,
-						);
-						const data = await response.json();
-						if (data.error) {
-							return { xid: Number.parseInt(xid), error: data.error.message };
-						}
-						return {
-							xid: Number.parseInt(xid),
-							name: data.name,
-							status: data.status,
-						};
-					} catch (err) {
-						return { xid: Number.parseInt(xid), error: "Fetch error" };
-					}
-				}),
-			);
-			setStatuses(results);
+			setLoading(true)
+			setError(null)
 
-			// Check for hospital status changes
-			for (const status of results) {
-				if (status.status?.state === "hospital") {
-					const notification = `${status.name} is in hospital until ${new Date(
-						status.status.until * 1000,
-					).toLocaleString()}`;
-					if (!notifications.includes(notification)) {
-						setNotifications((prev) => [...prev, notification]);
-					}
-				}
+			const response = await fetch(`https://api.torn.com/user/?selections=profile&key=${apiKey}`)
+			const data = await response.json()
+
+			if (data.error) {
+				throw new Error(data.error)
 			}
+
+			const players = Object.entries(data)
+				.filter(([_, player]: [string, any]) => player.status?.state === 'Hospital')
+				.map(([id, player]: [string, any]) => ({
+					id,
+					name: player.name,
+					level: player.level,
+					status: player.status.state,
+					timeLeft: player.status.until - Math.floor(Date.now() / 1000),
+					xid: player.player_id
+				}))
+
+			setHospitalizedPlayers(players)
+			setLastUpdate(new Date())
 		} catch (err) {
-			console.error("Error fetching statuses:", err);
+			console.error('Error fetching hospital status:', err)
+			setError(err instanceof Error ? err.message : 'Failed to fetch hospital status')
 		} finally {
-			setLoading(false);
+			setLoading(false)
 		}
-	}, [apiKey, xids, notifications]);
+	}
 
 	useEffect(() => {
-		if (apiKey && xids.length > 0) {
-			fetchStatuses();
-			const interval = setInterval(fetchStatuses, 5 * 60 * 1000); // Every 5 minutes
-			return () => clearInterval(interval);
+		fetchHospitalStatus()
+
+		let intervalId: number | undefined
+		if (autoUpdate) {
+			intervalId = window.setInterval(fetchHospitalStatus, 30000) // Update every 30 seconds
 		}
-	}, [apiKey, xids, fetchStatuses]);
+
+		return () => {
+			if (intervalId) {
+				clearInterval(intervalId)
+			}
+		}
+	}, [apiKey, autoUpdate])
+
+	const formatTimeLeft = (seconds: number) => {
+		if (seconds <= 0) return 'Released'
+		
+		const hours = Math.floor(seconds / 3600)
+		const minutes = Math.floor((seconds % 3600) / 60)
+		const remainingSeconds = seconds % 60
+
+		return `${hours}h ${minutes}m ${remainingSeconds}s`
+	}
+
+	if (loading && !hospitalizedPlayers.length) {
+		return <div className="loading">Loading hospital status...</div>
+	}
+
+	if (error) {
+		return <div className="error">Error: {error}</div>
+	}
+
+	if (!hospitalizedPlayers.length) {
+		return <div className="no-data">No players currently hospitalized</div>
+	}
 
 	return (
-		<div className="container mx-auto p-4">
-			<div className="mb-4 rounded-lg bg-gray-800 p-4 shadow-lg">
-				<ApiKeyForm apiKey={apiKey} onApiKeyChange={setApiKey} />
-				<XidForm xids={xids} onXidsChange={setXids} />
-				<div className="mt-4 flex gap-2">
-					<button
-						type="button"
-						onClick={saveToLocalStorage}
-						className="rounded bg-blue-500 px-4 py-2 font-semibold text-white"
-					>
-						Save
+		<div className="hospital-monitor">
+			<div className="monitor-header">
+				<h2>Hospital Monitor</h2>
+				<div className="monitor-controls">
+					<button onClick={fetchHospitalStatus} disabled={loading}>
+						{loading ? 'Updating...' : 'Refresh'}
 					</button>
-					<button
-						type="button"
-						onClick={fetchStatuses}
-						disabled={loading}
-						className="rounded bg-green-500 px-4 py-2 font-semibold text-white disabled:opacity-50"
-					>
-						{loading ? "Loading..." : "Refresh"}
-					</button>
+					<label>
+						<input
+							type="checkbox"
+							checked={autoUpdate}
+							onChange={(e) => setAutoUpdate(e.target.checked)}
+						/>
+						Auto-update
+					</label>
+					{lastUpdate && (
+						<span className="last-update">
+							Last updated: {lastUpdate.toLocaleTimeString()}
+						</span>
+					)}
 				</div>
 			</div>
 
-			<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-				{statuses.map((status) => (
-					<div
-						key={status.xid}
-						className={`rounded-lg p-4 shadow-lg ${
-							status.status?.state === "hospital"
-								? "bg-red-500"
-								: status.status?.state === "jail"
-									? "bg-yellow-500"
-									: "bg-green-500"
-						}`}
-					>
-						<h3 className="mb-2 font-semibold text-lg">{status.name}</h3>
-						<p>Status: {status.status?.state || "Unknown"}</p>
-						{status.status?.until && (
-							<p>
-								Until: {new Date(status.status.until * 1000).toLocaleString()}
-							</p>
-						)}
-						{status.error && <p className="text-red-500">{status.error}</p>}
+			<div className="hospital-grid">
+				{hospitalizedPlayers.map((player) => (
+					<div key={player.id} className="hospital-card">
+						<div className="player-info">
+							<h3>{player.name}</h3>
+							<span className="level">Level {player.level}</span>
+						</div>
+						
+						<div className="status-info">
+							<div className="time-left">
+								<span className="label">Time Left:</span>
+								<span className="value">{formatTimeLeft(player.timeLeft)}</span>
+							</div>
+							<div className="progress-bar">
+								<div 
+									className="progress" 
+									style={{ 
+										width: `${Math.max(0, Math.min(100, (player.timeLeft / 3600) * 100))}%` 
+									}}
+								/>
+							</div>
+						</div>
+
+						<div className="action-buttons">
+							<a 
+								href={`https://www.torn.com/profiles.php?XID=${player.xid}`}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="action-button profile-button"
+							>
+								Profile
+							</a>
+							<a 
+								href={`https://www.torn.com/messages.php#/p=compose&XID=${player.xid}`}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="action-button message-button"
+							>
+								Message
+							</a>
+							<a 
+								href={`https://www.torn.com/trade.php#step=start&userID=${player.xid}`}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="action-button trade-button"
+							>
+								Trade
+							</a>
+							<a 
+								href={`https://www.torn.com/sendcash.php#/XID=${player.xid}`}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="action-button money-button"
+							>
+								Send Money
+							</a>
+						</div>
 					</div>
 				))}
 			</div>
-
-			<NotificationPanel
-				notifications={notifications}
-				onClear={() => setNotifications([])}
-			/>
 		</div>
-	);
+	)
 }
 
-export const Route = createFileRoute('/hospital-monitor')({
-	component: HospitalMonitor,
-});
+export const Route = createFileRoute('/hospital-monitor')()

@@ -1,111 +1,187 @@
-import { useCallback, useEffect, useState } from "react";
-import AnalyticsDashboard from "../components/AnalyticsDashboard";
-import ApiKeyForm from "../components/ApiKeyForm";
-import NotificationPanel from "../components/NotificationPanel";
-import StatusDisplay from "../components/StatusDisplay";
-import XidForm from "../components/XidForm";
-import { useStore } from "../store";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
+import { useStore } from '@/store'
+import './ai-monitor.css'
 
-interface UserStatus {
-	xid: number;
-	name?: string;
-	status?: {
-		state: string;
-		until: number;
-	};
-	error?: string;
+interface AIPlayer {
+	id: string
+	name: string
+	level: number
+	status: string
+	timeLeft: number
+	xid: string
 }
 
-function AIMonitor() {
-	const { apiKey, xids, setStatuses, setLoading, setApiKey, setXids } = useStore();
-	const [statuses, setStatusesState] = useState<UserStatus[]>([]);
-	const [notifications, setNotifications] = useState<string[]>([]);
+export function AIMonitor() {
+	const { apiKey } = useStore()
+	const [aiPlayers, setAIPlayers] = useState<AIPlayer[]>([])
+	const [loading, setLoading] = useState(true)
+	const [error, setError] = useState<string | null>(null)
+	const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
+	const [autoUpdate, setAutoUpdate] = useState(true)
 
-	useEffect(() => {
-		const savedApiKey = localStorage.getItem("tornApiKey");
-		const savedXids = localStorage.getItem("aiXids");
-		if (savedApiKey) setApiKey(savedApiKey);
-		if (savedXids) setXids(JSON.parse(savedXids));
-	}, [setApiKey, setXids]);
+	const fetchAIStatus = async () => {
+		if (!apiKey) {
+			setError('API key is required')
+			setLoading(false)
+			return
+		}
 
-	const saveToLocalStorage = () => {
-		localStorage.setItem("tornApiKey", apiKey);
-		localStorage.setItem("aiXids", JSON.stringify(xids));
-	};
-
-	const fetchStatuses = useCallback(async () => {
-		if (!apiKey || xids.length === 0) return;
-		setLoading(true);
 		try {
-			const results = await Promise.all(
-				xids.map(async (xid: string) => {
-					try {
-						const response = await fetch(
-							`https://api.torn.com/user/${xid}?selections=profile&key=${apiKey}`,
-						);
-						const data = await response.json();
-						if (data.error) {
-							return { xid: Number.parseInt(xid), error: data.error.message };
-						}
-						return {
-							xid: Number.parseInt(xid),
-							name: data.name,
-							status: data.status,
-						};
-					} catch (err) {
-						return { xid: Number.parseInt(xid), error: "Fetch error" };
-					}
-				}),
-			);
-			setStatusesState(results);
+			setLoading(true)
+			setError(null)
 
-			// Check for status changes
-			for (const status of results) {
-				if (status.status?.state === "hospital") {
-					const notification = `${status.name} is in hospital until ${new Date(
-						status.status.until * 1000,
-					).toLocaleString()}`;
-					if (!notifications.includes(notification)) {
-						setNotifications((prev) => [...prev, notification]);
-					}
-				}
+			const response = await fetch(`https://api.torn.com/user/?selections=profile&key=${apiKey}`)
+			const data = await response.json()
+
+			if (data.error) {
+				throw new Error(data.error)
 			}
+
+			const players = Object.entries(data)
+				.filter(([_, player]: [string, any]) => player.status?.state === 'Abroad')
+				.map(([id, player]: [string, any]) => ({
+					id,
+					name: player.name,
+					level: player.level,
+					status: player.status.state,
+					timeLeft: player.status.until - Math.floor(Date.now() / 1000),
+					xid: player.player_id
+				}))
+
+			setAIPlayers(players)
+			setLastUpdate(new Date())
 		} catch (err) {
-			console.error("Error fetching statuses:", err);
+			console.error('Error fetching AI status:', err)
+			setError(err instanceof Error ? err.message : 'Failed to fetch AI status')
 		} finally {
-			setLoading(false);
+			setLoading(false)
 		}
-	}, [apiKey, xids, notifications, setLoading]);
+	}
 
 	useEffect(() => {
-		if (apiKey && xids.length > 0) {
-			fetchStatuses();
-			const interval = setInterval(fetchStatuses, 5 * 60 * 1000); // Every 5 minutes
-			return () => clearInterval(interval);
+		fetchAIStatus()
+
+		let intervalId: number | undefined
+		if (autoUpdate) {
+			intervalId = window.setInterval(fetchAIStatus, 30000) // Update every 30 seconds
 		}
-	}, [apiKey, xids, fetchStatuses]);
+
+		return () => {
+			if (intervalId) {
+				clearInterval(intervalId)
+			}
+		}
+	}, [apiKey, autoUpdate])
+
+	const formatTimeLeft = (seconds: number) => {
+		if (seconds <= 0) return 'Returned'
+		
+		const hours = Math.floor(seconds / 3600)
+		const minutes = Math.floor((seconds % 3600) / 60)
+		const remainingSeconds = seconds % 60
+
+		return `${hours}h ${minutes}m ${remainingSeconds}s`
+	}
+
+	if (loading && !aiPlayers.length) {
+		return <div className="loading">Loading AI status...</div>
+	}
+
+	if (error) {
+		return <div className="error">Error: {error}</div>
+	}
+
+	if (!aiPlayers.length) {
+		return <div className="no-data">No players currently abroad</div>
+	}
 
 	return (
-		<div className="min-h-screen bg-gray-900 p-6 text-white">
-			<h1 className="mb-6 font-bold text-4xl text-cyan-400">
-				Torn City AI Monitor
-			</h1>
-			<div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-				<div className="md:col-span-1">
-					<ApiKeyForm apiKey={apiKey} onApiKeyChange={setApiKey} />
-					<XidForm xids={xids} onXidsChange={setXids} />
-					<NotificationPanel notifications={notifications} onClear={() => setNotifications([])} />
-				</div>
-				<div className="md:col-span-2">
-					<StatusDisplay />
-					<AnalyticsDashboard />
+		<div className="ai-monitor">
+			<div className="monitor-header">
+				<h2>AI Monitor</h2>
+				<div className="monitor-controls">
+					<button onClick={fetchAIStatus} disabled={loading}>
+						{loading ? 'Updating...' : 'Refresh'}
+					</button>
+					<label>
+						<input
+							type="checkbox"
+							checked={autoUpdate}
+							onChange={(e) => setAutoUpdate(e.target.checked)}
+						/>
+						Auto-update
+					</label>
+					{lastUpdate && (
+						<span className="last-update">
+							Last updated: {lastUpdate.toLocaleTimeString()}
+						</span>
+					)}
 				</div>
 			</div>
+
+			<div className="ai-grid">
+				{aiPlayers.map((player) => (
+					<div key={player.id} className="ai-card">
+						<div className="player-info">
+							<h3>{player.name}</h3>
+							<span className="level">Level {player.level}</span>
+						</div>
+						
+						<div className="status-info">
+							<div className="time-left">
+								<span className="label">Time Left:</span>
+								<span className="value">{formatTimeLeft(player.timeLeft)}</span>
+							</div>
+							<div className="progress-bar">
+								<div 
+									className="progress" 
+									style={{ 
+										width: `${Math.max(0, Math.min(100, (player.timeLeft / 3600) * 100))}%` 
+									}}
+								/>
+							</div>
+						</div>
+
+						<div className="action-buttons">
+							<a 
+								href={`https://www.torn.com/profiles.php?XID=${player.xid}`}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="action-button profile-button"
+							>
+								Profile
+							</a>
+							<a 
+								href={`https://www.torn.com/messages.php#/p=compose&XID=${player.xid}`}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="action-button message-button"
+							>
+								Message
+							</a>
+							<a 
+								href={`https://www.torn.com/trade.php#step=start&userID=${player.xid}`}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="action-button trade-button"
+							>
+								Trade
+							</a>
+							<a 
+								href={`https://www.torn.com/sendcash.php#/XID=${player.xid}`}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="action-button money-button"
+							>
+								Send Money
+							</a>
+						</div>
+					</div>
+				))}
+			</div>
 		</div>
-	);
+	)
 }
 
-export const Route = createFileRoute('/ai-monitor')({
-	component: AIMonitor,
-});
+export const Route = createFileRoute('/ai-monitor')()

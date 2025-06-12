@@ -1,208 +1,447 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useStore } from "@/store";
 
 export const Route = createFileRoute("/torn-account")({
-	component: TornAccountComponent,
+	component: TornAccount,
 });
 
-interface TornBars {
-	energy: { current: number; maximum: number };
-	nerve: { current: number; maximum: number };
-	happy: { current: number; maximum: number };
-	life: { current: number; maximum: number };
-}
-
-interface TornStat {
-	[key: string]: number;
-}
-
-interface TornItem {
-	ID: string;
-	name: string;
-	quantity: number;
-	type: string;
-}
-
-interface TornCooldowns {
-	[key: string]: number; // unix timestamp (seconds) or 0 if not active
-}
-
-interface TornApiResponse {
+interface TornUserData {
 	name: string;
 	level: number;
-	bars: TornBars;
-	stats: TornStat;
-	inventory: TornItem[];
-	cooldowns?: TornCooldowns;
+	status: {
+		state: string;
+		until: number;
+		description?: string;
+	};
+	last_action: {
+		status: string;
+		timestamp: number;
+	};
+	faction: {
+		position: string;
+		faction_name: string;
+	};
+	travel: {
+		destination: string;
+		timestamp: number;
+	};
+	energy: {
+		current: number;
+		maximum: number;
+		increment: number;
+		interval: number;
+		ticktime: number;
+		fulltime: number;
+	};
+	nerve: {
+		current: number;
+		maximum: number;
+		increment: number;
+		interval: number;
+		ticktime: number;
+		fulltime: number;
+	};
+	happy: {
+		current: number;
+		maximum: number;
+		increment: number;
+		interval: number;
+		ticktime: number;
+		fulltime: number;
+	};
+	life: {
+		current: number;
+		maximum: number;
+		increment: number;
+		interval: number;
+		ticktime: number;
+		fulltime: number;
+	};
+	stats: {
+		strength: number;
+		defense: number;
+		speed: number;
+		dexterity: number;
+		total: number;
+	};
+	money: number;
+	bank: number;
+	points: number;
+	networth: number;
+	rank: string;
+	respect: number;
+	job: {
+		position: string;
+		company_name: string;
+	};
+	education: {
+		current: string;
+		time_left: number;
+	};
+	merits: number;
+	awards: number;
+	friends: number;
+	enemies: number;
+	forum_posts: number;
+	karma: number;
+	age: number;
+	role: string;
+	donator: boolean;
+	property: string;
+	stock: {
+		[key: string]: {
+			shares: number;
+			value: number;
+		};
+	};
+	bazaar: {
+		[key: string]: {
+			quantity: number;
+			price: number;
+		};
+	};
+	display: {
+		[key: string]: string;
+	};
 }
 
-function formatCooldownTime(unix: number) {
-	if (!unix || unix < Date.now() / 1000) return "Ready";
-	const seconds = unix - Math.floor(Date.now() / 1000);
-	if (seconds <= 0) return "Ready";
-	const h = Math.floor(seconds / 3600);
-	const m = Math.floor((seconds % 3600) / 60);
-	const s = seconds % 60;
-	return `${h}h ${m}m ${s}s`;
-}
-
-function TornAccountComponent() {
-	const [data, setData] = useState<TornApiResponse | null>(null);
+function TornAccount() {
+	const { apiKey } = useStore();
+	const [userData, setUserData] = useState<TornUserData | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+	const [autoUpdate, setAutoUpdate] = useState(true);
 
-	// Hardcoded API key as requested
-	const apiKey = "ogcHDmImSiJGc2rZ";
+	const fetchUserData = async () => {
+		if (!apiKey) {
+			setError("API key is required");
+			setLoading(false);
+			return;
+		}
 
-	useEffect(() => {
-		const fetchData = async () => {
+		try {
 			setLoading(true);
 			setError(null);
-			try {
-				const res = await fetch(
-					`https://api.torn.com/user/?selections=bars,profile,stats,inventory,cooldowns&key=${apiKey}`,
-				);
-				const json = await res.json();
-				if (json.error) {
-					setError(json.error.message);
-					setLoading(false);
-					return;
-				}
-				setData(json);
-			} catch (e) {
-				setError("Failed to fetch Torn API");
-			} finally {
-				setLoading(false);
+			const response = await fetch(
+				`https://api.torn.com/user/?selections=profile,basic,education,workstats,stocks,bazaar,display&key=${apiKey}`
+			);
+			const data = await response.json();
+
+			if (data.error) {
+				throw new Error(data.error.message);
+			}
+
+			setUserData(data);
+			setLastUpdate(new Date());
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "Failed to fetch user data");
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		fetchUserData();
+		let interval: number | undefined;
+
+		if (autoUpdate) {
+			interval = window.setInterval(fetchUserData, 30000); // Update every 30 seconds
+		}
+
+		return () => {
+			if (interval) {
+				clearInterval(interval);
 			}
 		};
-		fetchData();
-		const interval = setInterval(fetchData, 5 * 60 * 1000); // refresh every 5 min
-		return () => clearInterval(interval);
-	}, []);
+	}, [apiKey, autoUpdate]);
 
-	if (loading) {
-		return (
-			<div className="flex h-64 items-center justify-center">Loading...</div>
-		);
+	const formatTime = (timestamp: number): string => {
+		return new Date(timestamp * 1000).toLocaleString();
+	};
+
+	const formatMoney = (amount: number): string => {
+		return new Intl.NumberFormat('en-US', {
+			style: 'currency',
+			currency: 'USD',
+			minimumFractionDigits: 0,
+			maximumFractionDigits: 0
+		}).format(amount);
+	};
+
+	const calculateTimeUntilFull = (current: number, maximum: number, increment: number, interval: number): string => {
+		const pointsNeeded = maximum - current;
+		const timeNeeded = (pointsNeeded / increment) * interval;
+		const minutes = Math.floor(timeNeeded / 60);
+		const seconds = Math.floor(timeNeeded % 60);
+		return `${minutes}m ${seconds}s`;
+	};
+
+	if (loading && !userData) {
+		return <div className="loading">Loading account data...</div>;
 	}
+
 	if (error) {
-		return <div className="py-8 text-center text-red-500">{error}</div>;
+		return <div className="error">Error: {error}</div>;
 	}
-	if (!data) return null;
 
-	const { name, level, bars, stats, inventory, cooldowns } = data;
+	if (!userData) {
+		return <div className="no-data">No account data available</div>;
+	}
 
 	return (
-		<div className="mx-auto max-w-3xl space-y-8 py-8">
-			<Card>
-				<CardHeader>
-					<CardTitle>
-						Torn Account: {name} (Level {level})
-					</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<div className="grid grid-cols-2 gap-4">
-						<div>
-							<strong>Energy:</strong> {bars.energy.current} /{" "}
-							{bars.energy.maximum}
+		<div className="torn-account">
+			<div className="account-header">
+				<h2>{userData.name}'s Account</h2>
+				<div className="account-controls">
+					<button onClick={fetchUserData} disabled={loading}>
+						{loading ? "Updating..." : "Refresh"}
+					</button>
+					<label>
+						<input
+							type="checkbox"
+							checked={autoUpdate}
+							onChange={(e) => setAutoUpdate(e.target.checked)}
+						/>
+						Auto-update
+					</label>
+				</div>
+				{lastUpdate && (
+					<div className="last-update">
+						Last updated: {lastUpdate.toLocaleTimeString()}
+					</div>
+				)}
+			</div>
+
+			<div className="account-grid">
+				<div className="account-card basic-info">
+					<h3>Basic Information</h3>
+					<div className="info-grid">
+						<div className="info-item">
+							<span className="label">Level:</span>
+							<span className="value">{userData.level}</span>
 						</div>
-						<div>
-							<strong>Nerve:</strong> {bars.nerve.current} /{" "}
-							{bars.nerve.maximum}
+						<div className="info-item">
+							<span className="label">Status:</span>
+							<span className={`value status-${userData.status.state.toLowerCase()}`}>
+								{userData.status.state}
+							</span>
 						</div>
-						<div>
-							<strong>Happy:</strong> {bars.happy.current} /{" "}
-							{bars.happy.maximum}
+						<div className="info-item">
+							<span className="label">Rank:</span>
+							<span className="value">{userData.rank}</span>
 						</div>
-						<div>
-							<strong>Life:</strong> {bars.life.current} / {bars.life.maximum}
+						<div className="info-item">
+							<span className="label">Age:</span>
+							<span className="value">{userData.age} days</span>
+						</div>
+						<div className="info-item">
+							<span className="label">Role:</span>
+							<span className="value">{userData.role}</span>
+						</div>
+						<div className="info-item">
+							<span className="label">Donator:</span>
+							<span className="value">{userData.donator ? "Yes" : "No"}</span>
 						</div>
 					</div>
-				</CardContent>
-			</Card>
-			{cooldowns && (
-				<Card>
-					<CardHeader>
-						<CardTitle>Cooldowns</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<div className="overflow-x-auto">
-							<table className="min-w-full text-sm">
-								<thead>
-									<tr>
-										<th className="pr-4 text-left">Type</th>
-										<th className="text-left">Time Remaining</th>
-									</tr>
-								</thead>
-								<tbody>
-									{Object.entries(cooldowns).map(([key, value]) => (
-										<tr key={key}>
-											<td className="pr-4 font-medium">
-												{key.replace(/_/g, " ")}
-											</td>
-											<td>{formatCooldownTime(value)}</td>
-										</tr>
-									))}
-								</tbody>
-							</table>
+				</div>
+
+				<div className="account-card resources">
+					<h3>Resources</h3>
+					<div className="resource-grid">
+						<div className="resource-item">
+							<div className="resource-header">
+								<span className="label">Energy</span>
+								<span className="value">{userData.energy.current}/{userData.energy.maximum}</span>
+							</div>
+							<div className="progress-bar">
+								<div 
+									className="progress" 
+									style={{ width: `${(userData.energy.current / userData.energy.maximum) * 100}%` }}
+								/>
+							</div>
+							<div className="resource-details">
+								<span>Full in: {calculateTimeUntilFull(
+									userData.energy.current,
+									userData.energy.maximum,
+									userData.energy.increment,
+									userData.energy.interval
+								)}</span>
+							</div>
 						</div>
-					</CardContent>
-				</Card>
-			)}
-			<Card>
-				<CardHeader>
-					<CardTitle>Stats</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<div className="overflow-x-auto">
-						<table className="min-w-full text-sm">
-							<thead>
-								<tr>
-									<th className="pr-4 text-left">Stat</th>
-									<th className="text-left">Value</th>
-								</tr>
-							</thead>
-							<tbody>
-								{Object.entries(stats).map(([key, value]) => (
-									<tr key={key}>
-										<td className="pr-4 font-medium">
-											{key.replace(/_/g, " ")}
-										</td>
-										<td>{value}</td>
-									</tr>
-								))}
-							</tbody>
-						</table>
+
+						<div className="resource-item">
+							<div className="resource-header">
+								<span className="label">Nerve</span>
+								<span className="value">{userData.nerve.current}/{userData.nerve.maximum}</span>
+							</div>
+							<div className="progress-bar">
+								<div 
+									className="progress" 
+									style={{ width: `${(userData.nerve.current / userData.nerve.maximum) * 100}%` }}
+								/>
+							</div>
+							<div className="resource-details">
+								<span>Full in: {calculateTimeUntilFull(
+									userData.nerve.current,
+									userData.nerve.maximum,
+									userData.nerve.increment,
+									userData.nerve.interval
+								)}</span>
+							</div>
+						</div>
+
+						<div className="resource-item">
+							<div className="resource-header">
+								<span className="label">Happy</span>
+								<span className="value">{userData.happy.current}/{userData.happy.maximum}</span>
+							</div>
+							<div className="progress-bar">
+								<div 
+									className="progress" 
+									style={{ width: `${(userData.happy.current / userData.happy.maximum) * 100}%` }}
+								/>
+							</div>
+							<div className="resource-details">
+								<span>Full in: {calculateTimeUntilFull(
+									userData.happy.current,
+									userData.happy.maximum,
+									userData.happy.increment,
+									userData.happy.interval
+								)}</span>
+							</div>
+						</div>
+
+						<div className="resource-item">
+							<div className="resource-header">
+								<span className="label">Life</span>
+								<span className="value">{userData.life.current}/{userData.life.maximum}</span>
+							</div>
+							<div className="progress-bar">
+								<div 
+									className="progress" 
+									style={{ width: `${(userData.life.current / userData.life.maximum) * 100}%` }}
+								/>
+							</div>
+							<div className="resource-details">
+								<span>Full in: {calculateTimeUntilFull(
+									userData.life.current,
+									userData.life.maximum,
+									userData.life.increment,
+									userData.life.interval
+								)}</span>
+							</div>
+						</div>
 					</div>
-				</CardContent>
-			</Card>
-			<Card>
-				<CardHeader>
-					<CardTitle>Items</CardTitle>
-				</CardHeader>
-				<CardContent>
-					{inventory && inventory.length > 0 ? (
-						<ul className="grid grid-cols-1 gap-2 md:grid-cols-2">
-							{inventory.map((item) => (
-								<li
-									key={item.ID}
-									className="flex items-center justify-between rounded border px-2 py-1"
-								>
-									<span>{item.name}</span>
-									<span className="text-muted-foreground text-xs">
-										x{item.quantity}
-									</span>
-								</li>
-							))}
-						</ul>
-					) : (
-						<div>No items found.</div>
-					)}
-				</CardContent>
-			</Card>
+				</div>
+
+				<div className="account-card stats">
+					<h3>Stats</h3>
+					<div className="stats-grid">
+						<div className="stat-item">
+							<span className="label">Strength</span>
+							<span className="value">{userData.stats.strength.toLocaleString()}</span>
+						</div>
+						<div className="stat-item">
+							<span className="label">Defense</span>
+							<span className="value">{userData.stats.defense.toLocaleString()}</span>
+						</div>
+						<div className="stat-item">
+							<span className="label">Speed</span>
+							<span className="value">{userData.stats.speed.toLocaleString()}</span>
+						</div>
+						<div className="stat-item">
+							<span className="label">Dexterity</span>
+							<span className="value">{userData.stats.dexterity.toLocaleString()}</span>
+						</div>
+						<div className="stat-item total">
+							<span className="label">Total</span>
+							<span className="value">{userData.stats.total.toLocaleString()}</span>
+						</div>
+					</div>
+				</div>
+
+				<div className="account-card finances">
+					<h3>Finances</h3>
+					<div className="finance-grid">
+						<div className="finance-item">
+							<span className="label">Money</span>
+							<span className="value">{formatMoney(userData.money)}</span>
+						</div>
+						<div className="finance-item">
+							<span className="label">Bank</span>
+							<span className="value">{formatMoney(userData.bank)}</span>
+						</div>
+						<div className="finance-item">
+							<span className="label">Points</span>
+							<span className="value">{userData.points}</span>
+						</div>
+						<div className="finance-item">
+							<span className="label">Networth</span>
+							<span className="value">{formatMoney(userData.networth)}</span>
+						</div>
+					</div>
+				</div>
+
+				<div className="account-card social">
+					<h3>Social</h3>
+					<div className="social-grid">
+						<div className="social-item">
+							<span className="label">Faction</span>
+							<span className="value">{userData.faction.faction_name}</span>
+							<span className="sub-value">{userData.faction.position}</span>
+						</div>
+						<div className="social-item">
+							<span className="label">Job</span>
+							<span className="value">{userData.job.company_name}</span>
+							<span className="sub-value">{userData.job.position}</span>
+						</div>
+						<div className="social-item">
+							<span className="label">Education</span>
+							<span className="value">{userData.education.current}</span>
+							{userData.education.time_left > 0 && (
+								<span className="sub-value">
+									{Math.floor(userData.education.time_left / 60)}m {userData.education.time_left % 60}s left
+								</span>
+							)}
+						</div>
+					</div>
+				</div>
+
+				<div className="account-card achievements">
+					<h3>Achievements</h3>
+					<div className="achievement-grid">
+						<div className="achievement-item">
+							<span className="label">Merits</span>
+							<span className="value">{userData.merits}</span>
+						</div>
+						<div className="achievement-item">
+							<span className="label">Awards</span>
+							<span className="value">{userData.awards}</span>
+						</div>
+						<div className="achievement-item">
+							<span className="label">Friends</span>
+							<span className="value">{userData.friends}</span>
+						</div>
+						<div className="achievement-item">
+							<span className="label">Enemies</span>
+							<span className="value">{userData.enemies}</span>
+						</div>
+						<div className="achievement-item">
+							<span className="label">Forum Posts</span>
+							<span className="value">{userData.forum_posts}</span>
+						</div>
+						<div className="achievement-item">
+							<span className="label">Karma</span>
+							<span className="value">{userData.karma}</span>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	);
 }
 
-export default TornAccountComponent;
+export default TornAccount;

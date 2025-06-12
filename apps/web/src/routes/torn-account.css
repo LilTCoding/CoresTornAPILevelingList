@@ -1,0 +1,341 @@
+.torn-account {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.account-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.account-header h2 {
+    color: #ecf0f1;
+    font-size: 28px;
+    margin: 0;
+}
+
+.account-controls {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.account-controls button {
+    padding: 8px 16px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.account-controls button:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+}
+
+.account-controls button:disabled {
+    background: #7f8c8d;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.account-controls label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #bdc3c7;
+    cursor: pointer;
+}
+
+.account-controls input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.last-update {
+    color: #95a5a6;
+    font-size: 14px;
+}
+
+.account-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.account-card {
+    background: #2c3e50;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.account-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.account-card h3 {
+    color: #ecf0f1;
+    margin: 0 0 16px 0;
+    font-size: 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Basic Info */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.info-item .label {
+    color: #95a5a6;
+    font-size: 14px;
+}
+
+.info-item .value {
+    color: #ecf0f1;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+/* Resources */
+.resource-grid {
+    display: grid;
+    gap: 16px;
+}
+
+.resource-item {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 12px;
+    border-radius: 6px;
+}
+
+.resource-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.resource-header .label {
+    color: #ecf0f1;
+    font-weight: 500;
+}
+
+.resource-header .value {
+    color: #bdc3c7;
+}
+
+.progress-bar {
+    height: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.progress {
+    height: 100%;
+    background: #3498db;
+    transition: width 0.3s ease;
+}
+
+.resource-details {
+    color: #95a5a6;
+    font-size: 12px;
+}
+
+/* Stats */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+}
+
+.stat-item {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 12px;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.stat-item .label {
+    color: #95a5a6;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.stat-item .value {
+    color: #ecf0f1;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.stat-item.total {
+    grid-column: 1 / -1;
+    background: rgba(52, 152, 219, 0.2);
+}
+
+/* Finances */
+.finance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+}
+
+.finance-item {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 12px;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.finance-item .label {
+    color: #95a5a6;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.finance-item .value {
+    color: #2ecc71;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+/* Social */
+.social-grid {
+    display: grid;
+    gap: 12px;
+}
+
+.social-item {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 12px;
+    border-radius: 6px;
+}
+
+.social-item .label {
+    color: #95a5a6;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.social-item .value {
+    color: #ecf0f1;
+    font-size: 16px;
+    font-weight: 500;
+    display: block;
+}
+
+.social-item .sub-value {
+    color: #bdc3c7;
+    font-size: 14px;
+    display: block;
+    margin-top: 2px;
+}
+
+/* Achievements */
+.achievement-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+}
+
+.achievement-item {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 12px;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.achievement-item .label {
+    color: #95a5a6;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.achievement-item .value {
+    color: #f1c40f;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+/* Status Colors */
+.status-okay {
+    color: #2ecc71;
+}
+
+.status-hospital {
+    color: #e74c3c;
+}
+
+.status-traveling {
+    color: #3498db;
+}
+
+.status-jail {
+    color: #f1c40f;
+}
+
+/* Loading and Error States */
+.loading, .error, .no-data {
+    text-align: center;
+    padding: 40px;
+    background: #2c3e50;
+    border-radius: 8px;
+    color: #ecf0f1;
+    font-size: 18px;
+}
+
+.error {
+    color: #e74c3c;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .account-header {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+    }
+
+    .account-controls {
+        flex-direction: column;
+    }
+
+    .account-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .info-grid, .stats-grid, .finance-grid, .achievement-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .info-grid, .stats-grid, .finance-grid, .achievement-grid {
+        grid-template-columns: 1fr;
+    }
+} 
