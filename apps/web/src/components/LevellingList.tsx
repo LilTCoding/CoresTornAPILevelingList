@@ -144,12 +144,12 @@ export default function LevellingList() {
 						{status.error && <p className="text-red-500">{status.error}</p>}
 						<div className="mt-4 flex flex-wrap gap-2">
 							<a
-								href={`https://www.torn.com/loader.php?sid=attack&user2ID=${status.xid}`}
+								href={`https://www.torn.com/profiles.php?XID=${status.xid}`}
 								target="_blank"
 								rel="noopener noreferrer"
-								className="rounded bg-red-600 px-3 py-1 text-white hover:bg-red-700"
+								className="rounded bg-gray-700 px-3 py-1 text-white hover:bg-gray-600"
 							>
-								Attack
+								Profile
 							</a>
 							<a
 								href={`https://www.torn.com/messages.php#/p=compose&XID=${status.xid}`}
@@ -160,12 +160,28 @@ export default function LevellingList() {
 								Message
 							</a>
 							<a
+								href={`https://www.torn.com/trade.php#step=start&userID=${status.xid}`}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="rounded bg-gray-700 px-3 py-1 text-white hover:bg-gray-600"
+							>
+								Trade
+							</a>
+							<a
 								href={`https://www.torn.com/sendcash.php#/XID=${status.xid}`}
 								target="_blank"
 								rel="noopener noreferrer"
 								className="rounded bg-gray-700 px-3 py-1 text-white hover:bg-gray-600"
 							>
 								Send Money
+							</a>
+							<a
+								href={`https://www.torn.com/loader.php?sid=attack&user2ID=${status.xid}`}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="rounded bg-red-600 px-3 py-1 text-white hover:bg-red-700"
+							>
+								Attack
 							</a>
 						</div>
 					</div>
