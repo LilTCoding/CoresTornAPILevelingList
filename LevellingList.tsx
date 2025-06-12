@@ -286,6 +286,7 @@ const LevellingList: React.FC = () => {
 								href={`https://www.torn.com/profiles.php?XID=${status.xid}`}
 								target="_blank"
 								rel="noopener noreferrer"
+								className="action-button profile-button"
 							>
 								Profile
 							</a>
@@ -293,6 +294,7 @@ const LevellingList: React.FC = () => {
 								href={`https://www.torn.com/messages.php#/p=compose&XID=${status.xid}`}
 								target="_blank"
 								rel="noopener noreferrer"
+								className="action-button message-button"
 							>
 								Message
 							</a>
@@ -300,6 +302,7 @@ const LevellingList: React.FC = () => {
 								href={`https://www.torn.com/trade.php#step=start&userID=${status.xid}`}
 								target="_blank"
 								rel="noopener noreferrer"
+								className="action-button trade-button"
 							>
 								Trade
 							</a>
@@ -307,6 +310,7 @@ const LevellingList: React.FC = () => {
 								href={`https://www.torn.com/sendcash.php#/XID=${status.xid}`}
 								target="_blank"
 								rel="noopener noreferrer"
+								className="action-button money-button"
 							>
 								Send Money
 							</a>
@@ -315,7 +319,7 @@ const LevellingList: React.FC = () => {
 									href={`https://www.torn.com/attack.php?XID=${status.xid}`}
 									target="_blank"
 									rel="noopener noreferrer"
-									className="attack-button"
+									className="action-button attack-button"
 								>
 									Attack
 								</a>

@@ -66,4 +66,182 @@
     position: absolute;
     top: 0;
     right: 0;
+}
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.action-button {
+  padding: 6px 12px;
+  border-radius: 4px;
+  text-decoration: none;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  text-align: center;
+  flex: 1;
+  min-width: 80px;
+}
+
+.action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.profile-button {
+  background: #4a90e2;
+}
+
+.profile-button:hover {
+  background: #357abd;
+}
+
+.message-button {
+  background: #2ecc71;
+}
+
+.message-button:hover {
+  background: #27ae60;
+}
+
+.trade-button {
+  background: #f1c40f;
+  color: #2c3e50;
+}
+
+.trade-button:hover {
+  background: #f39c12;
+}
+
+.money-button {
+  background: #9b59b6;
+}
+
+.money-button:hover {
+  background: #8e44ad;
+}
+
+.attack-button {
+  background: #e74c3c;
+}
+
+.attack-button:hover {
+  background: #c0392b;
+}
+
+/* Update profile card styles */
+.profile-card {
+  background: #2c3e50;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-header h3 {
+  margin: 0;
+  color: #ecf0f1;
+  font-size: 18px;
+}
+
+.level {
+  background: #34495e;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #bdc3c7;
+}
+
+.remove-profile {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 8px;
+  transition: all 0.2s ease;
+}
+
+.remove-profile:hover {
+  color: #c0392b;
+  transform: scale(1.1);
+}
+
+.profile-status {
+  margin-bottom: 12px;
+  color: #bdc3c7;
+  font-size: 14px;
+}
+
+.profile-faction {
+  margin-bottom: 12px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  color: #ecf0f1;
+  font-size: 14px;
+}
+
+/* Status colors */
+.status-okay {
+  border-left: 4px solid #2ecc71;
+}
+
+.status-hospital {
+  border-left: 4px solid #e74c3c;
+}
+
+.status-traveling {
+  border-left: 4px solid #3498db;
+}
+
+.status-jail {
+  border-left: 4px solid #f1c40f;
+}
+
+/* Responsive grid */
+.profiles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  padding: 16px;
+}
+
+@media (max-width: 768px) {
+  .profiles-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .action-button {
+    width: 100%;
+  }
 } 
