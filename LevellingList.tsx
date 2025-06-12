@@ -1,5 +1,8 @@
 import React from "react";
 import { useEffect, useState } from "react";
+import HospitalMonitor from "./HospitalMonitor";
+import TornAccount from "./TornAccount";
+import NotificationBubble from "./NotificationBubble";
 
 interface UserStatus {
 	xid: number;
@@ -59,20 +62,76 @@ const LevellingList: React.FC = () => {
 	const [apiKey, setApiKey] = useState<string>("");
 	const [statuses, setStatuses] = useState<UserStatus[]>([]);
 	const [loading, setLoading] = useState<boolean>(false);
+	const [profileUrl, setProfileUrl] = useState<string>("");
+	const [savedXids, setSavedXids] = useState<number[]>(XIDS);
 
 	useEffect(() => {
-		// Load API key from localStorage
+		// Load API key and saved XIDs from localStorage
 		const savedApiKey = localStorage.getItem("apiKey");
+		const savedXidsStr = localStorage.getItem("savedXids");
 		if (savedApiKey) setApiKey(savedApiKey);
+		if (savedXidsStr) {
+			setSavedXids(JSON.parse(savedXidsStr));
+		}
 	}, []);
 
 	const saveApiKey = () => {
 		localStorage.setItem("apiKey", apiKey);
 	};
 
+	const addProfile = async () => {
+		try {
+			// Extract XID from profile URL
+			const xidMatch = profileUrl.match(/XID=(\d+)/);
+			if (!xidMatch) {
+				alert("Invalid Torn profile URL. Please enter a valid profile URL.");
+				return;
+			}
+
+			const xid = parseInt(xidMatch[1]);
+			
+			// Check if XID already exists
+			if (savedXids.includes(xid)) {
+				alert("This profile is already in the list.");
+				return;
+			}
+
+			// Verify the profile exists and get their name
+			const response = await fetch(
+				`https://api.torn.com/user/${xid}?selections=basic&key=${apiKey}`
+			);
+			const data = await response.json();
+
+			if (data.error) {
+				alert("Error: " + data.error.message);
+				return;
+			}
+
+			// Add the new XID to the list
+			const newXids = [...savedXids, xid];
+			setSavedXids(newXids);
+			localStorage.setItem("savedXids", JSON.stringify(newXids));
+			
+			// Clear the input
+			setProfileUrl("");
+			
+			// Refresh the statuses
+			fetchStatuses();
+		} catch (err) {
+			alert("Error adding profile. Please try again.");
+		}
+	};
+
+	const removeProfile = (xidToRemove: number) => {
+		const newXids = savedXids.filter(xid => xid !== xidToRemove);
+		setSavedXids(newXids);
+		localStorage.setItem("savedXids", JSON.stringify(newXids));
+		fetchStatuses();
+	};
+
 	const fetchStatuses = async () => {
 		setLoading(true);
-		const promises = XIDS.map(async (xid) => {
+		const promises = savedXids.map(async (xid) => {
 			try {
 				const response = await fetch(
 					`https://api.torn.com/user/${xid}?selections=basic,profile&key=${apiKey}`,
@@ -160,6 +219,22 @@ const LevellingList: React.FC = () => {
 					{loading ? "Loading..." : "Refresh"}
 				</button>
 			</div>
+			<TornAccount />
+			<div className="add-profile">
+				<label>
+					Add Profile:
+					<input
+						type="text"
+						value={profileUrl}
+						onChange={(e) => setProfileUrl(e.target.value)}
+						placeholder="Enter Torn profile URL (e.g., https://www.torn.com/profiles.php?XID=123456)"
+					/>
+				</label>
+				<button onClick={addProfile} disabled={loading}>
+					Add
+				</button>
+			</div>
+			<HospitalMonitor apiKey={apiKey} xids={savedXids} />
 			<div className="profiles-grid">
 				{statuses.map((status) => (
 					<div
@@ -169,6 +244,13 @@ const LevellingList: React.FC = () => {
 						<div className="profile-header">
 							<h3>{status.name}</h3>
 							<span className="level">Level {status.level || "?"}</span>
+							<button 
+								className="remove-profile"
+								onClick={() => removeProfile(status.xid)}
+								title="Remove from list"
+							>
+								×
+							</button>
 						</div>
 						<div className="profile-status">
 							<strong>Status:</strong> {status.status}
@@ -242,6 +324,7 @@ const LevellingList: React.FC = () => {
 					</div>
 				))}
 			</div>
+			<NotificationBubble />
 		</div>
 	);
 };

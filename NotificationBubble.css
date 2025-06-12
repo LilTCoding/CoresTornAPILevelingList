@@ -1,0 +1,200 @@
+@keyframes tron-glow {
+    0% {
+        box-shadow: 0 0 5px #00f3ff, 0 0 10px #00f3ff, 0 0 15px #00f3ff;
+    }
+    50% {
+        box-shadow: 0 0 10px #00f3ff, 0 0 20px #00f3ff, 0 0 30px #00f3ff;
+    }
+    100% {
+        box-shadow: 0 0 5px #00f3ff, 0 0 10px #00f3ff, 0 0 15px #00f3ff;
+    }
+}
+
+@keyframes deadpool-glow {
+    0% {
+        box-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000, 0 0 15px #ff0000;
+    }
+    50% {
+        box-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff0000;
+    }
+    100% {
+        box-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000, 0 0 15px #ff0000;
+    }
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.notification-bubble {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.notification-header {
+    width: 60px;
+    height: 60px;
+    background: #1a1a1a;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.notification-header:hover {
+    transform: scale(1.1);
+}
+
+.notification-icon {
+    position: relative;
+    width: 40px;
+    height: 40px;
+}
+
+.tron-circle {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 2px solid #00f3ff;
+    border-radius: 50%;
+    animation: tron-glow 2s infinite, rotate 4s linear infinite;
+}
+
+.deadpool-circle {
+    position: absolute;
+    width: 70%;
+    height: 70%;
+    border: 2px solid #ff0000;
+    border-radius: 50%;
+    top: 15%;
+    left: 15%;
+    animation: deadpool-glow 2s infinite, rotate 4s linear infinite reverse;
+}
+
+.notification-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ff0000;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    animation: pulse 2s infinite;
+}
+
+.notification-content {
+    position: absolute;
+    bottom: 70px;
+    right: 0;
+    width: 300px;
+    background: rgba(26, 26, 26, 0.95);
+    border-radius: 8px;
+    padding: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+    display: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.notification-bubble.expanded .notification-content {
+    display: block;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.notification-item {
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 4px;
+    color: white;
+    font-size: 14px;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.notification-item.tron {
+    background: linear-gradient(45deg, #00f3ff22, #00f3ff44);
+    border-left: 3px solid #00f3ff;
+}
+
+.notification-item.deadpool {
+    background: linear-gradient(45deg, #ff000022, #ff000044);
+    border-left: 3px solid #ff0000;
+}
+
+.notification-message {
+    margin-bottom: 5px;
+}
+
+.notification-time {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+/* Scrollbar styling */
+.notification-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notification-content::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+.notification-content::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 3px;
+}
+
+.notification-content::-webkit-scrollbar-thumb:hover {
+    background: #444;
+} 
