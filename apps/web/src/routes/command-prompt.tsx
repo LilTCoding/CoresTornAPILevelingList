@@ -153,6 +153,10 @@ function CommandPrompt() {
   };
 
   useEffect(() => {
+    // Always clear API key for this tab on mount
+    setApiKey("");
+    localStorage.removeItem('apiKey');
+    setShowApiKeyPrompt(true);
     inputRef.current?.focus();
   }, []);
 
