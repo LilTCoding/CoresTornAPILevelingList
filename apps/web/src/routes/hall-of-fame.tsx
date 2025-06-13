@@ -18,8 +18,9 @@ export function HallOfFame() {
   const [error, setError] = useState<string | null>(null)
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
   const [autoUpdate, setAutoUpdate] = useState(true)
-  const [currentPage, setCurrentPage] = useState(595600)
-  const [totalPages, setTotalPages] = useState(688888)
+  const [currentPage, setCurrentPage] = useState(525850)
+  const [totalPages, setTotalPages] = useState(688880)
+  const [loadingAll, setLoadingAll] = useState(false)
 
   const fetchHallOfFamePlayers = async (page: number) => {
     if (!apiKey) {
@@ -89,6 +90,22 @@ export function HallOfFame() {
     }
   }
 
+  const handleLoadAll = async () => {
+    if (!apiKey) return
+    setLoadingAll(true)
+    let page = currentPage
+    try {
+      while (page <= totalPages) {
+        await fetchHallOfFamePlayers(page)
+        page++
+      }
+    } catch (err) {
+      setError('Error loading all pages')
+    } finally {
+      setLoadingAll(false)
+    }
+  }
+
   if (loading && !players.length) {
     return <div className="loading">Loading Hall of Fame players...</div>
   }
@@ -104,6 +121,9 @@ export function HallOfFame() {
         <div className="monitor-controls">
           <button onClick={handleLoadMore} disabled={loading || currentPage > totalPages}>
             {loading ? 'Loading...' : currentPage > totalPages ? 'All Pages Loaded' : 'Load More'}
+          </button>
+          <button onClick={handleLoadAll} disabled={loadingAll || currentPage > totalPages} style={{ marginLeft: 8 }}>
+            {loadingAll ? 'Loading All...' : 'Load All'}
           </button>
           {lastUpdate && (
             <span className="last-update">

@@ -52,15 +52,15 @@ function RootComponent() {
 				<div className="grid h-svh grid-rows-[auto_1fr]">
 					<Header />
 					<main className="container mx-auto p-4">
-						{isFetching ? <Loader /> : <Outlet />}
+					{isFetching ? <Loader /> : <Outlet />}
 					</main>
 				</div>
 				<Toaster position="top-right" richColors />
 			</ThemeProvider>
 			{process.env.NODE_ENV === "development" && (
 				<>
-					<TanStackRouterDevtools position="bottom-left" />
-					<ReactQueryDevtools position="bottom" buttonPosition="bottom-right" />
+			<TanStackRouterDevtools position="bottom-left" />
+			<ReactQueryDevtools position="bottom" buttonPosition="bottom-right" />
 				</>
 			)}
 		</>

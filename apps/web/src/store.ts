@@ -57,10 +57,10 @@ export const useStore = create<StoreState>()(
 					return { xids: newXids };
 				});
 			},
-			statuses: [],
-			setStatuses: (statuses) => set({ statuses }),
-			loading: false,
-			setLoading: (loading) => set({ loading }),
+	statuses: [],
+	setStatuses: (statuses) => set({ statuses }),
+	loading: false,
+	setLoading: (loading) => set({ loading }),
 			error: null,
 			setError: (error) => set({ error }),
 			lastUpdate: null,

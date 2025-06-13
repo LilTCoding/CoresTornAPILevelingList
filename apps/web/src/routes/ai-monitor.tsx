@@ -62,19 +62,19 @@ export function AIMonitor() {
 				}
 			} else if (data && typeof data === 'object') {
 				players = Object.entries(data)
-					.filter(([_, player]: [string, any]) => 
-						player && 
-						typeof player === 'object' && 
-						player.status?.state === 'Abroad'
-					)
-					.map(([id, player]: [string, any]) => ({
-						id,
-						name: player.name || 'Unknown',
-						level: player.level || 0,
-						status: player.status.state,
-						timeLeft: player.status.until - Math.floor(Date.now() / 1000),
-						xid: player.player_id || id
-					}))
+				.filter(([_, player]: [string, any]) => 
+					player && 
+					typeof player === 'object' && 
+					player.status?.state === 'Abroad'
+				)
+				.map(([id, player]: [string, any]) => ({
+					id,
+					name: player.name || 'Unknown',
+					level: player.level || 0,
+					status: player.status.state,
+					timeLeft: player.status.until - Math.floor(Date.now() / 1000),
+					xid: player.player_id || id
+				}))
 			}
 
 			setAIPlayers(players)

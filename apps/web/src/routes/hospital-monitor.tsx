@@ -42,16 +42,16 @@ export function HospitalMonitor() {
 					const response = await fetch(
 						`https://api.torn.com/user/${xid}?selections=profile,basic&key=${apiKey}`
 					)
-					
-					if (!response.ok) {
-						throw new Error(`HTTP error! status: ${response.status}`)
-					}
+			
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`)
+			}
 
-					const data = await response.json()
+			const data = await response.json()
 
-					if (data.error) {
+			if (data.error) {
 						throw new Error(data.error.message)
-					}
+			}
 
 					if (data.status?.state === 'hospital') {
 						return {
@@ -75,7 +75,7 @@ export function HospitalMonitor() {
 			const results = await Promise.all(promises)
 			const hospitalized = results.filter((player: HospitalizedPlayer | null): player is HospitalizedPlayer => 
 				player !== null && 
-				typeof player === 'object' && 
+					typeof player === 'object' && 
 				'id' in player && 
 				'name' in player && 
 				'level' in player && 
@@ -98,18 +98,18 @@ export function HospitalMonitor() {
 
 	useEffect(() => {
 		if (apiKey) {
-			fetchHospitalStatus()
+		fetchHospitalStatus()
 
-			let intervalId: number | undefined
-			if (autoUpdate) {
-				intervalId = window.setInterval(fetchHospitalStatus, 30000) // Update every 30 seconds
-			}
+		let intervalId: number | undefined
+		if (autoUpdate) {
+			intervalId = window.setInterval(fetchHospitalStatus, 30000) // Update every 30 seconds
+		}
 
-			return () => {
-				if (intervalId) {
-					clearInterval(intervalId)
-				}
+		return () => {
+			if (intervalId) {
+				clearInterval(intervalId)
 			}
+		}
 		}
 	}, [apiKey, autoUpdate, xids])
 
@@ -181,20 +181,20 @@ export function HospitalMonitor() {
 				<div className="no-patients">No players currently hospitalized</div>
 			) : (
 				<div className="hospital-list">
-					{hospitalizedPlayers.map((player) => (
-						<div key={player.id} className="hospital-card">
-							<div className="player-info">
-								<h3>{player.name}</h3>
-								<span className="level">Level {player.level}</span>
-							</div>
-							
+				{hospitalizedPlayers.map((player) => (
+					<div key={player.id} className="hospital-card">
+						<div className="player-info">
+							<h3>{player.name}</h3>
+							<span className="level">Level {player.level}</span>
+						</div>
+						
 							<div className="hospital-details">
 								{player.hospital_reason && (
 									<div className="reason">
 										<strong>Reason:</strong> {player.hospital_reason}
 									</div>
 								)}
-								<div className="time-left">
+							<div className="time-left">
 									<strong>Time Left:</strong> {formatTimeLeft(player.timeLeft)}
 								</div>
 								{player.faction && (
@@ -202,47 +202,47 @@ export function HospitalMonitor() {
 										<strong>{player.faction.faction_name}</strong>
 										<br />
 										{player.faction.position}
-									</div>
+							</div>
 								)}
-							</div>
-
-							<div className="action-buttons">
-								<a 
-									href={`https://www.torn.com/profiles.php?XID=${player.xid}`}
-									target="_blank"
-									rel="noopener noreferrer"
-									className="action-button profile-button"
-								>
-									Profile
-								</a>
-								<a 
-									href={`https://www.torn.com/messages.php#/p=compose&XID=${player.xid}`}
-									target="_blank"
-									rel="noopener noreferrer"
-									className="action-button message-button"
-								>
-									Message
-								</a>
-								<a 
-									href={`https://www.torn.com/trade.php#step=start&userID=${player.xid}`}
-									target="_blank"
-									rel="noopener noreferrer"
-									className="action-button trade-button"
-								>
-									Trade
-								</a>
-								<a 
-									href={`https://www.torn.com/sendcash.php#/XID=${player.xid}`}
-									target="_blank"
-									rel="noopener noreferrer"
-									className="action-button money-button"
-								>
-									Send Money
-								</a>
-							</div>
 						</div>
-					))}
-				</div>
+
+						<div className="action-buttons">
+							<a 
+								href={`https://www.torn.com/profiles.php?XID=${player.xid}`}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="action-button profile-button"
+							>
+								Profile
+							</a>
+							<a 
+								href={`https://www.torn.com/messages.php#/p=compose&XID=${player.xid}`}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="action-button message-button"
+							>
+								Message
+							</a>
+							<a 
+								href={`https://www.torn.com/trade.php#step=start&userID=${player.xid}`}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="action-button trade-button"
+							>
+								Trade
+							</a>
+							<a 
+								href={`https://www.torn.com/sendcash.php#/XID=${player.xid}`}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="action-button money-button"
+							>
+								Send Money
+							</a>
+						</div>
+					</div>
+				))}
+			</div>
 			)}
 		</div>
 	)
