@@ -246,50 +246,14 @@ export default function LevellingList() {
 						return aLevel - bLevel;
 					}).map((group) => (
 						<div key={group} className="level-group-section">
-							<h2 className="level-group-heading">{group}</h2>
-							<div className="level-group-grid">
+							<h2 className="level-group-heading">{group}'s</h2>
+							<div className="level-group-row">
 								{levelGroups[group].map((user) => (
-									<div key={user.xid} className="profile-card">
+									<div key={user.xid} className="profile-card horizontal-profile-card">
 										<div className="profile-header">
-											<h3>{user.name || user.xid} {user.level !== undefined ? `(Level ${user.level})` : ''}</h3>
+											<h3>{user.name || user.xid}</h3>
 										</div>
-										<div className="space-y-2">
-											<p className="text-gray-300">Level: {user.level || "Unknown"}</p>
-											<p className="text-gray-300">
-												Status: <span className={getStatusColor(user.status)}>{user.status || "Unknown"}</span>
-											</p>
-											{user.hospital_reason && (
-												<p className="text-gray-300">Reason: {user.hospital_reason}</p>
-											)}
-											{user.hosp_out && (
-												<p className="text-gray-300">Time Left: {formatTimeLeft(user.hosp_out)}</p>
-											)}
-											{user.travel && (
-												<p className="text-gray-300">
-													Traveling to: {user.travel.destination}
-													<br />
-													Returns: {formatTime(user.travel.timestamp)}
-												</p>
-											)}
-											{user.faction && (
-												<p className="text-gray-300">
-													Faction: {user.faction.faction_name}
-													<br />
-													Position: {user.faction.position}
-												</p>
-											)}
-											<p className="text-gray-300">Last Action: {formatTime(user.lastAction)}</p>
-											{user.error && <p className="text-red-500">{user.error}</p>}
-										</div>
-										<div className="mt-4 flex flex-wrap gap-2">
-											<a
-												href={`https://www.torn.com/profiles.php?XID=${user.xid}`}
-												target="_blank"
-												rel="noopener noreferrer"
-												className="action-link"
-											>
-												Profile
-											</a>
+										<div className="profile-actions">
 											<a
 												href={`https://www.torn.com/messages.php#/p=compose&XID=${user.xid}`}
 												target="_blank"
@@ -325,6 +289,7 @@ export default function LevellingList() {
 												</a>
 											)}
 										</div>
+										<div className="profile-level">Level: {user.level || "Unknown"}</div>
 									</div>
 								))}
 							</div>

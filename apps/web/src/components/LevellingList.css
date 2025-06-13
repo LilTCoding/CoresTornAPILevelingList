@@ -56,4 +56,42 @@
 }
 .action-link.attack-button:hover {
   background: #c0392b;
+}
+.level-group-row {
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+.horizontal-profile-card {
+  min-width: 220px;
+  max-width: 260px;
+  flex: 0 0 auto;
+  margin-bottom: 0;
+  margin-right: 0.5rem;
+  background: #181c20;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px #0003;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.profile-header h3 {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+.profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.5rem;
+}
+.profile-level {
+  font-size: 0.98rem;
+  color: #1bc900;
+  font-weight: 600;
+  margin-top: 0.5rem;
 } 
