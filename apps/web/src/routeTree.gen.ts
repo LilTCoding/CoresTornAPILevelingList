@@ -17,6 +17,7 @@ import { Route as LevellingListRouteImport } from './routes/levelling-list'
 import { Route as HospitalMonitorRouteImport } from './routes/hospital-monitor'
 import { Route as HallOfFameRouteImport } from './routes/hall-of-fame'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CommandPromptRouteImport } from './routes/command-prompt'
 import { Route as CleanTravelRouteImport } from './routes/clean-travel'
 import { Route as AiMonitorRouteImport } from './routes/ai-monitor'
 import { Route as IndexRouteImport } from './routes/index'
@@ -61,6 +62,11 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CommandPromptRoute = CommandPromptRouteImport.update({
+  id: '/command-prompt',
+  path: '/command-prompt',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CleanTravelRoute = CleanTravelRouteImport.update({
   id: '/clean-travel',
   path: '/clean-travel',
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ai-monitor': typeof AiMonitorRoute
   '/clean-travel': typeof CleanTravelRoute
+  '/command-prompt': typeof CommandPromptRoute
   '/dashboard': typeof DashboardRoute
   '/hall-of-fame': typeof HallOfFameRoute
   '/hospital-monitor': typeof HospitalMonitorRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ai-monitor': typeof AiMonitorRoute
   '/clean-travel': typeof CleanTravelRoute
+  '/command-prompt': typeof CommandPromptRoute
   '/dashboard': typeof DashboardRoute
   '/hall-of-fame': typeof HallOfFameRoute
   '/hospital-monitor': typeof HospitalMonitorRoute
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/ai-monitor': typeof AiMonitorRoute
   '/clean-travel': typeof CleanTravelRoute
+  '/command-prompt': typeof CommandPromptRoute
   '/dashboard': typeof DashboardRoute
   '/hall-of-fame': typeof HallOfFameRoute
   '/hospital-monitor': typeof HospitalMonitorRoute
@@ -123,6 +132,7 @@ export interface FileRouteTypes {
     | '/'
     | '/ai-monitor'
     | '/clean-travel'
+    | '/command-prompt'
     | '/dashboard'
     | '/hall-of-fame'
     | '/hospital-monitor'
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/'
     | '/ai-monitor'
     | '/clean-travel'
+    | '/command-prompt'
     | '/dashboard'
     | '/hall-of-fame'
     | '/hospital-monitor'
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '/'
     | '/ai-monitor'
     | '/clean-travel'
+    | '/command-prompt'
     | '/dashboard'
     | '/hall-of-fame'
     | '/hospital-monitor'
@@ -163,6 +175,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AiMonitorRoute: typeof AiMonitorRoute
   CleanTravelRoute: typeof CleanTravelRoute
+  CommandPromptRoute: typeof CommandPromptRoute
   DashboardRoute: typeof DashboardRoute
   HallOfFameRoute: typeof HallOfFameRoute
   HospitalMonitorRoute: typeof HospitalMonitorRoute
@@ -231,6 +244,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/command-prompt': {
+      id: '/command-prompt'
+      path: '/command-prompt'
+      fullPath: '/command-prompt'
+      preLoaderRoute: typeof CommandPromptRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/clean-travel': {
       id: '/clean-travel'
       path: '/clean-travel'
@@ -259,6 +279,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiMonitorRoute: AiMonitorRoute,
   CleanTravelRoute: CleanTravelRoute,
+  CommandPromptRoute: CommandPromptRoute,
   DashboardRoute: DashboardRoute,
   HallOfFameRoute: HallOfFameRoute,
   HospitalMonitorRoute: HospitalMonitorRoute,
