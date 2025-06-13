@@ -6,6 +6,7 @@ import { logger } from "hono/logger";
 import { auth } from "./lib/auth";
 import { createContext } from "./lib/context";
 import { appRouter } from "./routers/index";
+import scripts from "./routes/scripts";
 
 const app = new Hono();
 
@@ -31,6 +32,8 @@ app.use(
 		},
 	}),
 );
+
+app.route("/api/scripts", scripts);
 
 app.get("/", (c) => {
 	return c.text("OK");

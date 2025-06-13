@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { executeScript } from "@/api/scripts";
 import "./TornScripts.css";
 
 interface Script {
@@ -11,6 +12,7 @@ interface Script {
     url: string;
     category: string;
     code: string;
+    isRunning?: boolean;
 }
 
 const categories = [
@@ -24,6 +26,28 @@ const categories = [
     "Other"
 ];
 
+const scriptDirs = [
+    "attack-link-in-stats",
+    "autofill-item-send",
+    "clean-travel",
+    "dont-hunt",
+    "dont-train",
+    "fill-vault",
+    "filter-elimination",
+    "filter-faction",
+    "filter-hof",
+    "filter-hospital",
+    "filter-overseas",
+    "gym-tab-hider",
+    "massive-chain-timer",
+    "max-buy",
+    "poker-username-links",
+    "racing-filter",
+    "racing-prefills",
+    "warning_on_join_attack",
+    "racing-select-car"
+];
+
 export default function TornScripts() {
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
@@ -34,30 +58,19 @@ export default function TornScripts() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [partialWarning, setPartialWarning] = useState<string | null>(null);
+    const [runningScripts, setRunningScripts] = useState<Set<string>>(new Set());
 
     const loadScripts = async () => {
         setLoading(true);
         setError(null);
         setPartialWarning(null);
-        const scriptDirs = [
-            "clean-travel",
-            "dont-train",
-            "fill-vault",
-            "filter-elimination",
-            "filter-faction",
-            "filter-hof",
-            "filter-hospital",
-            "max-buy",
-            "racing-filter",
-            "racing-prefills",
-            "racing-select-car",
-            "dont-hunt"
-        ];
         const loadedScripts: Script[] = [];
         let failedCount = 0;
+
         for (const dir of scriptDirs) {
             try {
-                const response = await fetch(`/torn_userscripts/${dir}/${dir.replace(/-/g, '_')}.js`);
+                const scriptFile = dir.includes('_') ? `${dir}.user.js` : `${dir.replace(/-/g, '_')}.js`;
+                const response = await fetch(`/torntoolsbycore/${dir}/${scriptFile}`);
                 if (!response.ok) {
                     throw new Error(`Failed to load script from ${dir}: ${response.statusText}`);
                 }
@@ -95,49 +108,55 @@ export default function TornScripts() {
         loadScripts();
     }, []);
 
+    const handleStart = async (script: Script) => {
+        try {
+            setRunningScripts(prev => new Set([...prev, script.name]));
+            const result = await executeScript(script.name);
+            
+            if (result.success) {
+                toast.success(`Script ${script.name} started successfully`);
+                if (result.output) {
+                    toast.info(result.output);
+                }
+            } else {
+                toast.error(result.message || 'Failed to start script');
+                setRunningScripts(prev => {
+                    const newSet = new Set(prev);
+                    newSet.delete(script.name);
+                    return newSet;
+                });
+            }
+        } catch (error) {
+            console.error('Error starting script:', error);
+            toast.error('Failed to start script');
+            setRunningScripts(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(script.name);
+                return newSet;
+            });
+        }
+    };
+
+    const handleStop = async (script: Script) => {
+        try {
+            setRunningScripts(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(script.name);
+                return newSet;
+            });
+            toast.success(`Script ${script.name} stopped`);
+        } catch (error) {
+            console.error('Error stopping script:', error);
+            toast.error('Failed to stop script');
+        }
+    };
+
     const filteredScripts = scripts.filter(script => {
         const matchesCategory = !selectedCategory || script.category === selectedCategory;
         const matchesSearch = script.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             script.description.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesCategory && matchesSearch;
     });
-
-    const handleInstall = (script: Script) => {
-        setSelectedScript(script);
-        setShowInstallModal(true);
-    };
-
-    const confirmInstall = () => {
-        if (selectedScript) {
-            try {
-                // Create a blob with the script content
-                const blob = new Blob([selectedScript.code], { type: 'text/javascript' });
-                const url = URL.createObjectURL(blob);
-
-                // Create a temporary link element
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `${selectedScript.name}.user.js`;
-
-                // Trigger the download
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-
-                // Clean up
-                URL.revokeObjectURL(url);
-
-                // Update installed scripts
-                setInstalledScripts(prev => [...prev, selectedScript.name]);
-                setShowInstallModal(false);
-                setSelectedScript(null);
-                toast.success(`${selectedScript.name} installed successfully`);
-            } catch (error) {
-                console.error('Error installing script:', error);
-                toast.error('Failed to install script');
-            }
-        }
-    };
 
     if (loading) {
         return (
@@ -201,11 +220,20 @@ export default function TornScripts() {
                             <p className="script-description">{script.description}</p>
                             <div className="script-actions">
                                 <Button
-                                    onClick={() => handleInstall(script)}
-                                    disabled={installedScripts.includes(script.name)}
-                                    variant={installedScripts.includes(script.name) ? "secondary" : "default"}
+                                    onClick={() => handleStart(script)}
+                                    disabled={runningScripts.has(script.name)}
+                                    variant="default"
+                                    className="start-btn"
                                 >
-                                    {installedScripts.includes(script.name) ? "Installed" : "Install"}
+                                    {runningScripts.has(script.name) ? "Running..." : "Start"}
+                                </Button>
+                                <Button
+                                    onClick={() => handleStop(script)}
+                                    disabled={!runningScripts.has(script.name)}
+                                    variant="destructive"
+                                    className="stop-btn"
+                                >
+                                    Stop
                                 </Button>
                                 <Button
                                     variant="outline"
@@ -225,27 +253,6 @@ export default function TornScripts() {
                     </Card>
                 ))}
             </div>
-
-            {showInstallModal && selectedScript && (
-                <div className="install-modal">
-                    <div className="modal-content">
-                        <h3>Install {selectedScript.name}</h3>
-                        <p>This will install the userscript directly to your browser. Make sure you have a userscript manager (like Tampermonkey) installed.</p>
-                        <div className="modal-actions">
-                            <Button onClick={confirmInstall}>Install Now</Button>
-                            <Button 
-                                variant="outline"
-                                onClick={() => {
-                                    setShowInstallModal(false);
-                                    setSelectedScript(null);
-                                }}
-                            >
-                                Cancel
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 } 
