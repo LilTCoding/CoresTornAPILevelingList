@@ -1,0 +1,59 @@
+.level-groups-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.level-group-section {
+  background: #23272f;
+  border-radius: 10px;
+  padding: 1.5rem 1rem;
+  box-shadow: 0 2px 8px #0002;
+  margin-bottom: 1.5rem;
+}
+.level-group-heading {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #1bc900;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #333;
+  padding-bottom: 0.5rem;
+}
+.level-group-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+.profile-card {
+  background: #181c20;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px #0003;
+  padding: 1rem;
+  min-width: 220px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.action-link {
+  display: inline-block;
+  background: #333;
+  color: #fff;
+  padding: 0.3rem 0.8rem;
+  border-radius: 4px;
+  margin-right: 0.3rem;
+  margin-bottom: 0.3rem;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: background 0.2s;
+}
+.action-link:hover {
+  background: #1bc900;
+  color: #181c20;
+}
+.action-link.attack-button {
+  background: #e74c3c;
+  color: #fff;
+}
+.action-link.attack-button:hover {
+  background: #c0392b;
+} 
