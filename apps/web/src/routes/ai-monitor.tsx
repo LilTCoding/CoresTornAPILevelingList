@@ -233,70 +233,76 @@ export function AIMonitor() {
 				</div>
 			</div>
 
-			<div className="ai-grid">
-				{aiPlayers.map((player) => (
-					<div key={player.id} className="ai-card">
-						<div className="player-info">
-							<h3>{player.name}</h3>
-							<span className="level">Level {player.level}</span>
-							<span className={player.status === 'hospital' ? 'hospital-status led-green' : 'hospital-status chrome-red'}>
-								{player.status === 'hospital' ? 'In Hospital' : 'Not in Hospital'}
-							</span>
-						</div>
-						
-						<div className="status-info">
-							<div className="time-left">
-								<span className="label">Time Left:</span>
-								<span className="value">{formatTimeLeft(player.timeLeft)}</span>
-							</div>
-							<div className="progress-bar">
-								<div 
-									className="progress" 
-									style={{ 
-										width: `${Math.max(0, Math.min(100, (player.timeLeft / 3600) * 100))}%` 
-									}}
-								/>
-							</div>
-						</div>
+			<div>
+				{aiPlayers.length === 0 && !loading && !scanning ? (
+					<div className="no-data">No low-level Hall of Fame players found.</div>
+				) : (
+					<div className="ai-grid">
+						{aiPlayers.map((player) => (
+							<div key={player.id} className="ai-card">
+								<div className="player-info">
+									<h3>{player.name}</h3>
+									<span className="level">Level {player.level}</span>
+									<span className={player.status === 'hospital' ? 'hospital-status led-green' : 'hospital-status chrome-red'}>
+										{player.status === 'hospital' ? 'In Hospital' : 'Not in Hospital'}
+									</span>
+								</div>
+								
+								<div className="status-info">
+									<div className="time-left">
+										<span className="label">Time Left:</span>
+										<span className="value">{formatTimeLeft(player.timeLeft)}</span>
+									</div>
+									<div className="progress-bar">
+										<div 
+											className="progress" 
+											style={{ 
+												width: `${Math.max(0, Math.min(100, (player.timeLeft / 3600) * 100))}%` 
+											}}
+										/>
+									</div>
+								</div>
 
-						<div className="action-buttons">
-							<a 
-								href={`https://www.torn.com/profiles.php?XID=${player.xid}`}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="action-button profile-button"
-							>
-								Profile
-							</a>
-							{player.status !== 'hospital' && player.status !== 'traveling' && player.status !== 'federal' && (
-								<a 
-									href={`https://www.torn.com/loader.php?sid=attack&user2ID=${player.xid}`}
-									target="_blank"
-									rel="noopener noreferrer"
-									className="action-button message-button"
-								>
-									Attack
-								</a>
-							)}
-							<a 
-								href={`https://www.torn.com/trade.php#step=start&userID=${player.xid}`}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="action-button trade-button"
-							>
-								Trade
-							</a>
-							<a 
-								href={`https://www.torn.com/sendcash.php#/XID=${player.xid}`}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="action-button money-button"
-							>
-								Send Money
-							</a>
-						</div>
+								<div className="action-buttons">
+									<a 
+										href={`https://www.torn.com/profiles.php?XID=${player.xid}`}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="action-button profile-button"
+									>
+										Profile
+									</a>
+									{player.status !== 'hospital' && player.status !== 'traveling' && player.status !== 'federal' && (
+										<a 
+											href={`https://www.torn.com/loader.php?sid=attack&user2ID=${player.xid}`}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="action-button message-button"
+										>
+											Attack
+										</a>
+									)}
+									<a 
+										href={`https://www.torn.com/trade.php#step=start&userID=${player.xid}`}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="action-button trade-button"
+									>
+										Trade
+									</a>
+									<a 
+										href={`https://www.torn.com/sendcash.php#/XID=${player.xid}`}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="action-button money-button"
+									>
+										Send Money
+									</a>
+								</div>
+							</div>
+						))}
 					</div>
-				))}
+				)}
 			</div>
 		</div>
 	)
