@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { useStore } from '@/store'
 import './ai-monitor.css'
+import { toast } from 'sonner'
 
 interface AIPlayer {
 	id: string
@@ -141,6 +142,14 @@ export function AIMonitor() {
 				await new Promise(res => setTimeout(res, 500))
 			}
 			setLastUpdate(new Date())
+			// After scan, add all unique XIDs to Leveling List
+			const newXids = aiResults.map(p => Number(p.xid)).filter(xid => !isNaN(xid))
+			const existing = JSON.parse(localStorage.getItem('torn-leveling-xids') || '[]')
+			const merged = Array.from(new Set([...existing, ...newXids]))
+			const addedCount = merged.length - existing.length
+			localStorage.setItem('torn-leveling-xids', JSON.stringify(merged))
+			if (addedCount > 0) toast.success(`AI added ${addedCount} new low-level players to the Leveling List!`)
+			else toast.info('No new low-level players to add.')
 		} catch (err) {
 			setError('Error scanning Hall of Fame')
 		} finally {
@@ -196,6 +205,17 @@ export function AIMonitor() {
 					</button>
 					<button onClick={scanHallOfFame} disabled={scanning || loading} style={{ background: '#e67e22' }}>
 						{scanning ? `Scanning... (${scanProgress}%)` : 'Scan Hall of Fame'}
+					</button>
+					<button onClick={() => {
+						const newXids = aiPlayers.map(p => Number(p.xid)).filter(xid => !isNaN(xid))
+						const existing = JSON.parse(localStorage.getItem('torn-leveling-xids') || '[]')
+						const merged = Array.from(new Set([...existing, ...newXids]))
+						const addedCount = merged.length - existing.length
+						localStorage.setItem('torn-leveling-xids', JSON.stringify(merged))
+						if (addedCount > 0) toast.success(`Manually added ${addedCount} players to Leveling List!`)
+						else toast.info('No new players to add.')
+					}} disabled={aiPlayers.length === 0} style={{ background: '#00ff9d', color: '#181818', marginLeft: 8 }}>
+						Add All to Leveling List
 					</button>
 					<label>
 						<input
