@@ -12,6 +12,7 @@ export default function Header() {
 		{ to: "/ai-monitor", label: "AI Monitor" },
 		{ to: "/levelling-list", label: "Levelling List" },
 		{ to: "/torn-scripts", label: "Torn Scripts" },
+		{ to: "/command-prompt", label: "Command Prompt" },
 	];
 
 	return (
