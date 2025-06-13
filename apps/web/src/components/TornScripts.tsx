@@ -44,8 +44,8 @@ const scriptDirs = [
     "poker-username-links",
     "racing-filter",
     "racing-prefills",
-    "warning_on_join_attack",
-    "racing-select-car"
+    "racing-select-car",
+    "warning_on_join_attack"
 ];
 
 export default function TornScripts() {
@@ -75,8 +75,14 @@ export default function TornScripts() {
             try {
                 // Determine the correct script filename
                 let scriptFile;
-                if (dir.includes('_')) {
-                    scriptFile = `${dir}.user.js`;
+                if (dir === 'attack-link-in-stats') {
+                    scriptFile = 'attack-link-in-stats.user.js';
+                } else if (dir === 'autofill-item-send') {
+                    scriptFile = 'autofill-item-send.user.js';
+                } else if (dir === 'massive-chain-timer') {
+                    scriptFile = 'massive-chain-time.user.js';
+                } else if (dir === 'warning_on_join_attack') {
+                    scriptFile = 'warning-on-join-attack.user.js';
                 } else if (dir === 'filter-faction') {
                     scriptFile = 'Faction_Filter.js';
                 } else {
