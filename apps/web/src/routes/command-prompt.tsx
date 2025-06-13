@@ -112,6 +112,16 @@ function CommandPrompt() {
     const [cmdName, ...args] = cmdInput.trim().split(' ');
     const command = commands.find((c) => c.name.toLowerCase() === cmdName.toLowerCase());
     if (command) {
+      // Check for API key set command
+      const apiKeyMatch = cmdInput.match(/^\s*api\s*key\s*:?\s*([a-zA-Z0-9]+)\s*$/i) || cmdInput.match(/^\s*apikey\s*:?\s*([a-zA-Z0-9]+)\s*$/i);
+      if (apiKeyMatch) {
+        const newKey = apiKeyMatch[1];
+        setApiKey(newKey);
+        localStorage.setItem('apiKey', newKey);
+        setOutput((prev) => [...prev, `> ${cmdInput}`, `API key updated!`]);
+        setInput('');
+        return;
+      }
       const result = await command.execute(args, apiKey);
       setOutput((prev) => [...prev, `> ${cmdInput}`, result]);
     } else {
