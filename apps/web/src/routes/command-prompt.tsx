@@ -56,6 +56,28 @@ Defense: ${data.defense}`;
       return `Simulating attack on ${target}... [Outcome: Success (mock)]`;
     },
   },
+  {
+    name: 'sendmoney',
+    description: 'Send money to a user: sendmoney <userID> <amount>',
+    execute: async (args: string[], apiKey: string) => {
+      const [userId, amount] = args;
+      if (!userId || !amount || isNaN(Number(userId)) || isNaN(Number(amount))) {
+        return 'Usage: sendmoney <userID> <amount>';
+      }
+      try {
+        // Torn API endpoint for sending money
+        const response = await fetch(`https://api.torn.com/transaction/send/?toID=${userId}&amount=${amount}&key=${apiKey}`);
+        const data = await response.json();
+        if (data.error) return `Error: ${data.error.error} - ${data.error.error_description || data.error.error}`;
+        if (data.transaction_id) {
+          return `Success! Sent $${Number(amount).toLocaleString()} to user ID ${userId}. Transaction ID: ${data.transaction_id}`;
+        }
+        return JSON.stringify(data, null, 2);
+      } catch (err) {
+        return 'Error sending money.';
+      }
+    },
+  },
   ...Array.from({ length: 647 }, (_, i) => ({
     name: `cmd${i + 3}`,
     description: `Custom command ${i + 3}`,
@@ -130,6 +152,32 @@ function CommandPrompt() {
     setShowApiKeyPrompt(false);
   };
 
+  // Spam Send $1 logic
+  const handleSpamSend = async () => {
+    const userId = prompt('Enter the user ID to spam with $1:');
+    if (!userId || isNaN(Number(userId))) {
+      setOutput(prev => [...prev, '> Spam Send', 'Invalid user ID.']);
+      return;
+    }
+    let timesStr = prompt('How many times? (default 10)');
+    const times = timesStr && !isNaN(Number(timesStr)) ? Number(timesStr) : 10;
+    setOutput(prev => [...prev, `> Spam Send $1 to ${userId} x${times}`]);
+    for (let i = 1; i <= times; i++) {
+      try {
+        const response = await fetch(`https://api.torn.com/transaction/send/?toID=${userId}&amount=1&key=${apiKey}`);
+        const data = await response.json();
+        if (data.error) {
+          setOutput(prev => [...prev, `Send #${i}: Error: ${data.error.error}`]);
+          break;
+        }
+        setOutput(prev => [...prev, `Send #${i}: Success! Transaction ID: ${data.transaction_id}`]);
+      } catch (err) {
+        setOutput(prev => [...prev, `Send #${i}: Network error`]);
+        break;
+      }
+    }
+  };
+
   if (showApiKeyPrompt) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-green-400 font-mono">
@@ -164,6 +212,14 @@ function CommandPrompt() {
         {output.map((line, i) => (
           <div key={i} className="mb-1">{line}</div>
         ))}
+        <div className="flex justify-end mb-2">
+          <button
+            onClick={handleSpamSend}
+            className="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded font-bold shadow"
+          >
+            Spam Send $1
+          </button>
+        </div>
       </div>
       <div className="p-4 border-t border-green-400">
         <input
