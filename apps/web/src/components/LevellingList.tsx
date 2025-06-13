@@ -254,39 +254,31 @@ export default function LevellingList() {
 											<h3>{user.name || user.xid}</h3>
 										</div>
 										<div className="profile-actions">
-											<a
-												href={`https://www.torn.com/messages.php#/p=compose&XID=${user.xid}`}
-												target="_blank"
-												rel="noopener noreferrer"
-												className="action-link"
+											<button
+												className="action-btn message-btn"
+												onClick={() => window.open(`https://www.torn.com/messages.php#/p=compose&XID=${user.xid}`, '_blank')}
 											>
 												Message
-											</a>
-											<a
-												href={`https://www.torn.com/trade.php#step=start&userID=${user.xid}`}
-												target="_blank"
-												rel="noopener noreferrer"
-												className="action-link"
+											</button>
+											<button
+												className="action-btn trade-btn"
+												onClick={() => window.open(`https://www.torn.com/trade.php#step=start&userID=${user.xid}`, '_blank')}
 											>
 												Trade
-											</a>
-											<a
-												href={`https://www.torn.com/sendcash.php#/XID=${user.xid}`}
-												target="_blank"
-												rel="noopener noreferrer"
-												className="action-link"
+											</button>
+											<button
+												className="action-btn sendmoney-btn"
+												onClick={() => window.open(`https://www.torn.com/sendcash.php#/XID=${user.xid}`, '_blank')}
 											>
 												Send Money
-											</a>
+											</button>
 											{user.status?.toLowerCase() !== "hospital" && (
-												<a
-													href={`https://www.torn.com/loader.php?sid=attack&user2ID=${user.xid}`}
-													target="_blank"
-													rel="noopener noreferrer"
-													className="action-link attack-button"
+												<button
+													className="action-btn attack-btn"
+													onClick={() => window.open(`https://www.torn.com/loader.php?sid=attack&user2ID=${user.xid}`, '_blank')}
 												>
 													Attack
-												</a>
+												</button>
 											)}
 										</div>
 										<div className="profile-level">Level: {user.level || "Unknown"}</div>

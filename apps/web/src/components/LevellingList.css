@@ -94,4 +94,45 @@
   color: #1bc900;
   font-weight: 600;
   margin-top: 0.5rem;
+}
+.action-btn {
+  display: inline-block;
+  padding: 0.35rem 1.1rem;
+  border-radius: 5px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-right: 0.3rem;
+  margin-bottom: 0.3rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.message-btn {
+  background: #3498db;
+  color: #fff;
+}
+.message-btn:hover {
+  background: #217dbb;
+}
+.trade-btn {
+  background: #f39c12;
+  color: #fff;
+}
+.trade-btn:hover {
+  background: #d35400;
+}
+.sendmoney-btn {
+  background: #1bc900;
+  color: #181c20;
+}
+.sendmoney-btn:hover {
+  background: #16a34a;
+  color: #fff;
+}
+.attack-btn {
+  background: #e74c3c;
+  color: #fff;
+}
+.attack-btn:hover {
+  background: #c0392b;
 } 
