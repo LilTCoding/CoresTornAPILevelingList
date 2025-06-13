@@ -159,23 +159,38 @@ function CommandPrompt() {
       setOutput(prev => [...prev, '> Spam Send', 'Invalid user ID.']);
       return;
     }
-    let timesStr = prompt('How many times? (default 10)');
-    const times = timesStr && !isNaN(Number(timesStr)) ? Number(timesStr) : 10;
-    setOutput(prev => [...prev, `> Spam Send $1 to ${userId} x${times}`]);
-    for (let i = 1; i <= times; i++) {
+    let totalAmountStr = prompt('Enter the total amount to send (in dollars):');
+    const totalAmount = totalAmountStr && !isNaN(Number(totalAmountStr)) ? Number(totalAmountStr) : 0;
+    if (totalAmount <= 0) {
+      setOutput(prev => [...prev, '> Spam Send', 'Invalid amount.']);
+      return;
+    }
+    setOutput(prev => [...prev, `> Spam Send $1 to ${userId} until $${totalAmount} is sent`]);
+    let sent = 0;
+    for (let i = 1; i <= totalAmount; i++) {
       try {
         const response = await fetch(`https://api.torn.com/transaction/send/?toID=${userId}&amount=1&key=${apiKey}`);
         const data = await response.json();
         if (data.error) {
-          setOutput(prev => [...prev, `Send #${i}: Error: ${data.error.error}`]);
+          if (data.error.error && data.error.error.toLowerCase().includes('access level')) {
+            setOutput(prev => [...prev, `Send #${i}: Error: Your API key does not have the required 'transactions' permission. Please generate a new key with this permission enabled.`]);
+          } else {
+            setOutput(prev => [...prev, `Send #${i}: Error: ${data.error.error}`]);
+          }
           break;
         }
-        setOutput(prev => [...prev, `Send #${i}: Success! Transaction ID: ${data.transaction_id}`]);
+        sent++;
+        if (i % 10 === 0 || i === totalAmount) {
+          setOutput(prev => [...prev, `Sent $${sent} so far...`]);
+        }
       } catch (err) {
         setOutput(prev => [...prev, `Send #${i}: Network error`]);
         break;
       }
+      // To avoid rate limits, pause every 10 sends
+      if (i % 10 === 0) await new Promise(res => setTimeout(res, 1000));
     }
+    setOutput(prev => [...prev, `Spam Send complete. Total sent: $${sent}`]);
   };
 
   if (showApiKeyPrompt) {
