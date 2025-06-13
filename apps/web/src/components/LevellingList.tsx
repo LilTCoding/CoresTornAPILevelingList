@@ -61,6 +61,7 @@ const LevellingList: React.FC = () => {
 	const [statuses, setStatuses] = useState<UserStatus[]>([]);
 	const [loading, setLoading] = useState<boolean>(false);
 	const [savedXids, setSavedXids] = useState<number[]>(XIDS);
+	const [newXid, setNewXid] = useState("");
 
 	useEffect(() => {
 		const savedApiKey = localStorage.getItem("apiKey");
@@ -150,6 +151,25 @@ const LevellingList: React.FC = () => {
 
 	const levelGroups = groupByExactLevel(statuses);
 
+	const handleAddXid = () => {
+		const xid = newXid.trim();
+		if (!xid.match(/^\d+$/)) {
+			toast.error("Please enter a valid Torn player XID (numbers only)");
+			return;
+		}
+		const xidNum = Number(xid);
+		if (savedXids.includes(xidNum)) {
+			toast.warning("This XID is already in your list.");
+			return;
+		}
+		const updated = [...savedXids, xidNum];
+		setSavedXids(updated);
+		localStorage.setItem("torn-leveling-xids", JSON.stringify(updated));
+		setNewXid("");
+		fetchStatuses();
+		toast.success("Player added to the list!");
+	};
+
 	return (
 		<div className="cyberpunk-container">
 			<div className="cyberpunk-header">
@@ -176,6 +196,17 @@ const LevellingList: React.FC = () => {
 						{loading ? "Loading..." : "Refresh"}
 					</button>
 				</div>
+				<div className="api-key-control" style={{ marginTop: '1rem' }}>
+					<input
+						type="text"
+						className="cyberpunk-input"
+						placeholder="Add Torn Player XID..."
+						value={newXid}
+						onChange={e => setNewXid(e.target.value)}
+						onKeyDown={e => { if (e.key === 'Enter') handleAddXid(); }}
+					/>
+					<button className="cyberpunk-button save-btn" onClick={handleAddXid}>ADD PLAYER</button>
+				</div>
 			</div>
 
 			<div className="level-groups-container">
@@ -192,11 +223,12 @@ const LevellingList: React.FC = () => {
 								{levelGroups[group].map((user) => (
 									<div key={user.xid} className="profile-card">
 										<div className="profile-header">
-											<h3>{user.name || user.xid}</h3>
+											<span className="profile-name">{user.name}</span>
+											<span className={user.status === 'hospital' ? 'hospital-status led-green' : 'hospital-status chrome-red'}>
+												{user.status === 'hospital' ? 'In Hospital' : 'Not in Hospital'}
+											</span>
 										</div>
-										<div className="profile-level">
-											Level: {user.level || "Unknown"}
-										</div>
+										<div className="profile-level">Level: {user.level || "Unknown"}</div>
 										<div className="profile-actions">
 											<button
 												className="action-btn message-btn"

@@ -286,4 +286,19 @@
 .refresh-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.hospital-status {
+  font-weight: bold;
+  font-size: 1.1em;
+  margin-left: 10px;
+  letter-spacing: 1px;
+}
+.led-green {
+  color: #00ff00;
+  text-shadow: 0 0 8px #00ff00, 0 0 16px #00ff00, 0 0 2px #fff;
+}
+.chrome-red {
+  color: #ff0033;
+  text-shadow: 0 0 8px #ff0033, 0 0 16px #ff0033, 0 0 2px #fff;
 } 
