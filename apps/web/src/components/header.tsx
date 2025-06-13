@@ -14,6 +14,7 @@ export default function Header() {
 		{ to: "/torn-scripts", label: "Torn Scripts" },
 		{ to: "/command-prompt", label: "Command Prompt" },
 		{ to: "/tampermonkey-helper", label: "Tampermonkey Helper" },
+		{ to: "/tamper-torn", label: "TamperTorn" },
 	];
 
 	return (
