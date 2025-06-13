@@ -1,0 +1,12 @@
+.admin-panel { max-width: 600px; margin: 2rem auto; padding: 2rem; background: #181c20; border-radius: 12px; color: #fff; box-shadow: 0 2px 8px #0002; }
+.owner-info { margin-bottom: 1.5rem; font-size: 1.1rem; font-weight: bold; }
+.admin-key-manager { margin-bottom: 2rem; }
+.admin-key-manager input { padding: 0.5rem; margin-right: 0.5rem; border-radius: 4px; border: 1px solid #333; }
+.admin-key-manager button { padding: 0.5rem 1rem; border-radius: 4px; background: #1bc900; color: #181c20; border: none; margin-left: 0.5rem; }
+.admin-key-manager ul { list-style: none; padding: 0; }
+.admin-key-manager li { display: flex; align-items: center; margin: 0.5rem 0; }
+.admin-key-manager li span { flex: 1; word-break: break-all; }
+.admin-key-manager li button { background: #e74c3c; color: #fff; border: none; border-radius: 4px; padding: 0.25rem 0.75rem; margin-left: 0.5rem; }
+.admin-actions { margin-bottom: 2rem; }
+.admin-actions button { background: #3498db; color: #fff; border: none; border-radius: 4px; padding: 0.5rem 1rem; margin-right: 1rem; }
+.torn-200plus { background: #22272b; padding: 1rem; border-radius: 8px; margin-top: 2rem; } 

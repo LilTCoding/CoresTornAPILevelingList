@@ -141,6 +141,11 @@ function TornAccount() {
 				throw new Error(data.error.message);
 			}
 
+			// Validate the data structure
+			if (!data.stats || typeof data.stats !== 'object') {
+				throw new Error('Invalid data structure: stats object is missing or invalid');
+			}
+
 			setUserData(data);
 			setLastUpdate(new Date());
 			toast.success('Account data updated');
@@ -217,7 +222,7 @@ function TornAccount() {
 		);
 	}
 
-	if (!userData) {
+	if (!userData || !userData.stats) {
 		return (
 			<div className="torn-account">
 				<div className="no-data">No account data available</div>
@@ -227,14 +232,24 @@ function TornAccount() {
 
 	return (
 		<div className="torn-account">
+			{/* Owner/Admin Banner */}
+			<div className="owner-banner">
+				<strong>Owner/Admin:</strong> LilTorey [3544082]
+			</div>
 			<div className="account-header">
-				<h2>{userData.name}'s Account</h2>
-				<div className="account-controls">
-					<button 
-						onClick={fetchUserData} 
-						disabled={loading}
-						className="refresh-button"
+				<h2>
+					<a
+						href={`https://www.torn.com/profiles.php?XID=${3544082}`}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="profile-link"
 					>
+						{userData.name}
+					</a>
+					's Account
+				</h2>
+				<div className="account-controls">
+					<button onClick={fetchUserData} disabled={loading} className="refresh-button">
 						{loading ? "Updating..." : "Refresh"}
 					</button>
 					<label className="auto-update">
@@ -252,7 +267,152 @@ function TornAccount() {
 					)}
 				</div>
 			</div>
-
+			<div className="account-info-box">
+				<div className="info-row">
+					<span className="label">Name:</span>
+					<span className="value">
+						<a
+							href={`https://www.torn.com/profiles.php?XID=${3544082}`}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="profile-link"
+						>
+							{userData.name}
+						</a>
+					</span>
+				</div>
+				<div className="info-row">
+					<span className="label">Money:</span>
+					<span className="value" style={{ color: '#1bc900', fontWeight: 600 }}>
+						{formatMoney(userData.money)}
+					</span>
+				</div>
+				<div className="info-row">
+					<span className="label">Level:</span>
+					<span className="value">{userData.level}</span>
+				</div>
+				<div className="info-row">
+					<span className="label">Points:</span>
+					<span className="value">{userData.points}</span>
+				</div>
+				<div className="info-row">
+					<span className="label">Merits:</span>
+					<span className="value">
+						{userData.merits} {userData.merits > 0 && (
+							<a
+								href="https://www.torn.com/merits.php"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="merit-use-link"
+								style={{ color: '#1bc900', marginLeft: 4 }}
+							>
+								[use]
+							</a>
+						)}
+					</span>
+				</div>
+			</div>
+			{/* Resource Bars */}
+			<div className="resource-bars">
+				{/* Energy */}
+				<div className="resource-row">
+					<span className="label">Energy:</span>
+					<div className="bar-container">
+						<div
+							className="bar energy-bar"
+							style={{ width: `${(userData.energy.current / userData.energy.maximum) * 100}%` }}
+						/>
+						<span className="bar-text">
+							{userData.energy.current}/{userData.energy.maximum}
+							{userData.energy.current < userData.energy.maximum && (
+								<span className="bar-timer">
+									{calculateTimeUntilFull(
+										userData.energy.current,
+										userData.energy.maximum,
+										userData.energy.increment,
+										userData.energy.interval
+									)}
+								</span>
+							)}
+						</span>
+					</div>
+				</div>
+				{/* Nerve */}
+				<div className="resource-row">
+					<span className="label">Nerve:</span>
+					<div className="bar-container">
+						<div
+							className="bar nerve-bar"
+							style={{ width: `${(userData.nerve.current / userData.nerve.maximum) * 100}%` }}
+						/>
+						<span className="bar-text">
+							{userData.nerve.current}/{userData.nerve.maximum}
+							{userData.nerve.current < userData.nerve.maximum ? (
+								<span className="bar-timer">
+									{calculateTimeUntilFull(
+										userData.nerve.current,
+										userData.nerve.maximum,
+										userData.nerve.increment,
+										userData.nerve.interval
+									)}
+								</span>
+							) : (
+								<span className="bar-timer">FULL</span>
+							)}
+						</span>
+					</div>
+				</div>
+				{/* Happy */}
+				<div className="resource-row">
+					<span className="label">Happy:</span>
+					<div className="bar-container">
+						<div
+							className="bar happy-bar"
+							style={{ width: `${userData.happy.maximum === 0 ? 0 : (userData.happy.current / userData.happy.maximum) * 100}%` }}
+						/>
+						<span className="bar-text">
+							{userData.happy.current}/{userData.happy.maximum}
+							{userData.happy.current < userData.happy.maximum ? (
+								<span className="bar-timer">
+									{calculateTimeUntilFull(
+										userData.happy.current,
+										userData.happy.maximum,
+										userData.happy.increment,
+										userData.happy.interval
+									)}
+								</span>
+							) : (
+								<span className="bar-timer">FULL</span>
+							)}
+						</span>
+					</div>
+				</div>
+				{/* Life */}
+				<div className="resource-row">
+					<span className="label">Life:</span>
+					<div className="bar-container">
+						<div
+							className="bar life-bar"
+							style={{ width: `${(userData.life.current / userData.life.maximum) * 100}%` }}
+						/>
+						<span className="bar-text">
+							{userData.life.current}/{userData.life.maximum}
+							{userData.life.current < userData.life.maximum ? (
+								<span className="bar-timer">
+									{calculateTimeUntilFull(
+										userData.life.current,
+										userData.life.maximum,
+										userData.life.increment,
+										userData.life.interval
+									)}
+								</span>
+							) : (
+								<span className="bar-timer">FULL</span>
+							)}
+						</span>
+					</div>
+				</div>
+			</div>
 			<div className="account-grid">
 				<Card className="account-card basic-info">
 					<CardHeader>
@@ -260,10 +420,6 @@ function TornAccount() {
 					</CardHeader>
 					<CardContent>
 						<div className="info-grid">
-							<div className="info-item">
-								<span className="label">Level:</span>
-								<span className="value">{userData.level}</span>
-							</div>
 							<div className="info-item">
 								<span className="label">Status:</span>
 								<span className={`value status-${userData.status.state.toLowerCase()}`}>
@@ -321,80 +477,6 @@ function TornAccount() {
 					</CardContent>
 				</Card>
 
-				<Card className="account-card resources">
-					<CardHeader>
-						<CardTitle>Resources</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<div className="info-grid">
-							<div className="info-item">
-								<span className="label">Energy:</span>
-								<span className="value">
-									{userData.energy.current}/{userData.energy.maximum}
-									{userData.energy.current < userData.energy.maximum && (
-										<span className="time-until">
-											(Full in {calculateTimeUntilFull(
-												userData.energy.current,
-												userData.energy.maximum,
-												userData.energy.increment,
-												userData.energy.interval
-											)})
-										</span>
-									)}
-								</span>
-							</div>
-							<div className="info-item">
-								<span className="label">Nerve:</span>
-								<span className="value">
-									{userData.nerve.current}/{userData.nerve.maximum}
-									{userData.nerve.current < userData.nerve.maximum && (
-										<span className="time-until">
-											(Full in {calculateTimeUntilFull(
-												userData.nerve.current,
-												userData.nerve.maximum,
-												userData.nerve.increment,
-												userData.nerve.interval
-											)})
-										</span>
-									)}
-								</span>
-							</div>
-							<div className="info-item">
-								<span className="label">Happy:</span>
-								<span className="value">
-									{userData.happy.current}/{userData.happy.maximum}
-									{userData.happy.current < userData.happy.maximum && (
-										<span className="time-until">
-											(Full in {calculateTimeUntilFull(
-												userData.happy.current,
-												userData.happy.maximum,
-												userData.happy.increment,
-												userData.happy.interval
-											)})
-										</span>
-									)}
-								</span>
-							</div>
-							<div className="info-item">
-								<span className="label">Life:</span>
-								<span className="value">
-									{userData.life.current}/{userData.life.maximum}
-									{userData.life.current < userData.life.maximum && (
-										<span className="time-until">
-											(Full in {calculateTimeUntilFull(
-												userData.life.current,
-												userData.life.maximum,
-												userData.life.increment,
-												userData.life.interval
-											)})
-										</span>
-									)}
-								</span>
-							</div>
-						</div>
-					</CardContent>
-				</Card>
-
 				<Card className="account-card finances">
 					<CardHeader>
 						<CardTitle>Finances</CardTitle>
@@ -402,19 +484,11 @@ function TornAccount() {
 					<CardContent>
 						<div className="info-grid">
 							<div className="info-item">
-								<span className="label">Cash:</span>
-								<span className="value">{formatMoney(userData.money)}</span>
-							</div>
-							<div className="info-item">
 								<span className="label">Bank:</span>
 								<span className="value">{formatMoney(userData.bank)}</span>
 							</div>
 							<div className="info-item">
-								<span className="label">Points:</span>
-								<span className="value">{userData.points}</span>
-							</div>
-							<div className="info-item">
-								<span className="label">Net Worth:</span>
+								<span className="label">Networth:</span>
 								<span className="value">{formatMoney(userData.networth)}</span>
 							</div>
 						</div>
@@ -428,12 +502,12 @@ function TornAccount() {
 					<CardContent>
 						<div className="info-grid">
 							<div className="info-item">
-								<span className="label">Faction:</span>
-								<span className="value">{userData.faction.faction_name}</span>
-							</div>
-							<div className="info-item">
 								<span className="label">Position:</span>
 								<span className="value">{userData.faction.position}</span>
+							</div>
+							<div className="info-item">
+								<span className="label">Faction:</span>
+								<span className="value">{userData.faction.faction_name}</span>
 							</div>
 						</div>
 					</CardContent>
@@ -446,12 +520,12 @@ function TornAccount() {
 					<CardContent>
 						<div className="info-grid">
 							<div className="info-item">
-								<span className="label">Company:</span>
-								<span className="value">{userData.job.company_name}</span>
-							</div>
-							<div className="info-item">
 								<span className="label">Position:</span>
 								<span className="value">{userData.job.position}</span>
+							</div>
+							<div className="info-item">
+								<span className="label">Company:</span>
+								<span className="value">{userData.job.company_name}</span>
 							</div>
 						</div>
 					</CardContent>
@@ -467,12 +541,12 @@ function TornAccount() {
 								<span className="label">Current Course:</span>
 								<span className="value">{userData.education.current}</span>
 							</div>
-							{userData.education.time_left > 0 && (
-								<div className="info-item">
-									<span className="label">Time Left:</span>
-									<span className="value">{Math.floor(userData.education.time_left / 60)}m {userData.education.time_left % 60}s</span>
-								</div>
-							)}
+							<div className="info-item">
+								<span className="label">Time Left:</span>
+								<span className="value">
+									{Math.floor(userData.education.time_left / 60)}m {userData.education.time_left % 60}s
+								</span>
+							</div>
 						</div>
 					</CardContent>
 				</Card>
@@ -483,10 +557,6 @@ function TornAccount() {
 					</CardHeader>
 					<CardContent>
 						<div className="info-grid">
-							<div className="info-item">
-								<span className="label">Merits:</span>
-								<span className="value">{userData.merits}</span>
-							</div>
 							<div className="info-item">
 								<span className="label">Awards:</span>
 								<span className="value">{userData.awards}</span>
