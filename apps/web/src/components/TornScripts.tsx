@@ -59,45 +59,72 @@ export default function TornScripts() {
     const [error, setError] = useState<string | null>(null);
     const [partialWarning, setPartialWarning] = useState<string | null>(null);
     const [runningScripts, setRunningScripts] = useState<Set<string>>(new Set());
+    const [loadingProgress, setLoadingProgress] = useState(0);
 
     const loadScripts = async () => {
         setLoading(true);
         setError(null);
         setPartialWarning(null);
+        setLoadingProgress(0);
         const loadedScripts: Script[] = [];
         let failedCount = 0;
+        const totalScripts = scriptDirs.length;
 
-        for (const dir of scriptDirs) {
+        for (let i = 0; i < scriptDirs.length; i++) {
+            const dir = scriptDirs[i];
             try {
-                const scriptFile = dir.includes('_') ? `${dir}.user.js` : `${dir.replace(/-/g, '_')}.js`;
+                // Determine the correct script filename
+                let scriptFile;
+                if (dir.includes('_')) {
+                    scriptFile = `${dir}.user.js`;
+                } else if (dir === 'filter-faction') {
+                    scriptFile = 'Faction_Filter.js';
+                } else {
+                    scriptFile = `${dir.replace(/-/g, '_')}.js`;
+                }
+
                 const response = await fetch(`/torntoolsbycore/${dir}/${scriptFile}`);
                 if (!response.ok) {
                     throw new Error(`Failed to load script from ${dir}: ${response.statusText}`);
                 }
+
                 const code = await response.text();
                 const nameMatch = code.match(/@name\s+(.+)/);
                 const descriptionMatch = code.match(/@description\s+(.+)/);
                 const downloadURLMatch = code.match(/@downloadURL\s+(.+)/);
+
                 const name = nameMatch ? nameMatch[1].trim() : dir;
                 const description = descriptionMatch ? descriptionMatch[1].trim() : "";
                 const url = downloadURLMatch ? downloadURLMatch[1].trim() : `https://github.com/cryosis7/torn_userscripts/tree/master/${dir}`;
+
+                // Determine category based on script name and description
                 let category = "Other";
-                if (dir.includes("travel")) category = "Travel";
-                else if (dir.includes("train")) category = "Training";
-                else if (dir.includes("vault")) category = "Banking";
-                else if (dir.includes("filter")) category = "Filtering";
-                else if (dir.includes("racing")) category = "Racing";
-                else if (dir.includes("buy")) category = "Shopping";
-                else if (dir.includes("clean")) category = "UI Enhancement";
+                const lowerName = name.toLowerCase();
+                const lowerDesc = description.toLowerCase();
+
+                if (lowerName.includes("travel") || lowerDesc.includes("travel")) category = "Travel";
+                else if (lowerName.includes("train") || lowerDesc.includes("train")) category = "Training";
+                else if (lowerName.includes("vault") || lowerDesc.includes("vault")) category = "Banking";
+                else if (lowerName.includes("filter") || lowerDesc.includes("filter")) category = "Filtering";
+                else if (lowerName.includes("racing") || lowerDesc.includes("racing")) category = "Racing";
+                else if (lowerName.includes("buy") || lowerDesc.includes("buy")) category = "Shopping";
+                else if (lowerName.includes("clean") || lowerDesc.includes("clean")) category = "UI Enhancement";
+
                 loadedScripts.push({ name, description, url, category, code });
+                setLoadingProgress(((i + 1) / totalScripts) * 100);
             } catch (error) {
                 console.error(`Failed to load script from ${dir}:`, error);
                 failedCount++;
+                setLoadingProgress(((i + 1) / totalScripts) * 100);
             }
         }
+
+        // Sort scripts by name
+        loadedScripts.sort((a, b) => a.name.localeCompare(b.name));
         setScripts(loadedScripts);
         setLoading(false);
-        if (failedCount === scriptDirs.length) {
+
+        if (failedCount === totalScripts) {
             setError("Failed to load all scripts. Please try again later.");
         } else if (failedCount > 0) {
             setPartialWarning(`Failed to load ${failedCount} script(s). Some scripts may be missing.`);
@@ -161,7 +188,16 @@ export default function TornScripts() {
     if (loading) {
         return (
             <div className="torn-scripts">
-                <div className="loading">Loading scripts...</div>
+                <div className="loading">
+                    <div>Loading scripts...</div>
+                    <div className="loading-progress">
+                        <div 
+                            className="loading-progress-bar" 
+                            style={{ width: `${loadingProgress}%` }}
+                        />
+                    </div>
+                    <div>{Math.round(loadingProgress)}%</div>
+                </div>
             </div>
         );
     }
