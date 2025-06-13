@@ -319,16 +319,22 @@ function TornAccount() {
 							style={{ width: `${(userData.energy.current / userData.energy.maximum) * 100}%` }}
 						/>
 						<span className="bar-text">
-							{userData.energy.current}/{userData.energy.maximum}
-							{userData.energy.current < userData.energy.maximum && (
-								<span className="bar-timer">
-									{calculateTimeUntilFull(
-										userData.energy.current,
-										userData.energy.maximum,
-										userData.energy.increment,
-										userData.energy.interval
+							{userData.energy && typeof userData.energy.current === 'number' && typeof userData.energy.maximum === 'number' ? (
+								<>
+									{userData.energy.current}/{userData.energy.maximum}
+									{userData.energy.current < userData.energy.maximum && (
+										<span className="bar-timer">
+											{calculateTimeUntilFull(
+												userData.energy.current,
+												userData.energy.maximum,
+												userData.energy.increment ?? 1,
+												userData.energy.interval ?? 60
+											)}
+										</span>
 									)}
-								</span>
+								</>
+							) : (
+								<span>Not available</span>
 							)}
 						</span>
 					</div>
@@ -342,18 +348,22 @@ function TornAccount() {
 							style={{ width: `${(userData.nerve.current / userData.nerve.maximum) * 100}%` }}
 						/>
 						<span className="bar-text">
-							{userData.nerve.current}/{userData.nerve.maximum}
-							{userData.nerve.current < userData.nerve.maximum ? (
-								<span className="bar-timer">
-									{calculateTimeUntilFull(
-										userData.nerve.current,
-										userData.nerve.maximum,
-										userData.nerve.increment,
-										userData.nerve.interval
+							{userData.nerve && typeof userData.nerve.current === 'number' && typeof userData.nerve.maximum === 'number' ? (
+								<>
+									{userData.nerve.current}/{userData.nerve.maximum}
+									{userData.nerve.current < userData.nerve.maximum && (
+										<span className="bar-timer">
+											{calculateTimeUntilFull(
+												userData.nerve.current,
+												userData.nerve.maximum,
+												userData.nerve.increment ?? 1,
+												userData.nerve.interval ?? 60
+											)}
+										</span>
 									)}
-								</span>
+								</>
 							) : (
-								<span className="bar-timer">FULL</span>
+								<span>Not available</span>
 							)}
 						</span>
 					</div>
@@ -367,18 +377,22 @@ function TornAccount() {
 							style={{ width: `${userData.happy.maximum === 0 ? 0 : (userData.happy.current / userData.happy.maximum) * 100}%` }}
 						/>
 						<span className="bar-text">
-							{userData.happy.current}/{userData.happy.maximum}
-							{userData.happy.current < userData.happy.maximum ? (
-								<span className="bar-timer">
-									{calculateTimeUntilFull(
-										userData.happy.current,
-										userData.happy.maximum,
-										userData.happy.increment,
-										userData.happy.interval
+							{userData.happy && typeof userData.happy.current === 'number' && typeof userData.happy.maximum === 'number' ? (
+								<>
+									{userData.happy.current}/{userData.happy.maximum}
+									{userData.happy.current < userData.happy.maximum && (
+										<span className="bar-timer">
+											{calculateTimeUntilFull(
+												userData.happy.current,
+												userData.happy.maximum,
+												userData.happy.increment ?? 1,
+												userData.happy.interval ?? 60
+											)}
+										</span>
 									)}
-								</span>
+								</>
 							) : (
-								<span className="bar-timer">FULL</span>
+								<span>Not available</span>
 							)}
 						</span>
 					</div>
@@ -392,18 +406,22 @@ function TornAccount() {
 							style={{ width: `${(userData.life.current / userData.life.maximum) * 100}%` }}
 						/>
 						<span className="bar-text">
-							{userData.life.current}/{userData.life.maximum}
-							{userData.life.current < userData.life.maximum ? (
-								<span className="bar-timer">
-									{calculateTimeUntilFull(
-										userData.life.current,
-										userData.life.maximum,
-										userData.life.increment,
-										userData.life.interval
+							{userData.life && typeof userData.life.current === 'number' && typeof userData.life.maximum === 'number' ? (
+								<>
+									{userData.life.current}/{userData.life.maximum}
+									{userData.life.current < userData.life.maximum && (
+										<span className="bar-timer">
+											{calculateTimeUntilFull(
+												userData.life.current,
+												userData.life.maximum,
+												userData.life.increment ?? 1,
+												userData.life.interval ?? 60
+											)}
+										</span>
 									)}
-								</span>
+								</>
 							) : (
-								<span className="bar-timer">FULL</span>
+								<span>Not available</span>
 							)}
 						</span>
 					</div>
