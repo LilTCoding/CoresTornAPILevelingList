@@ -33,12 +33,10 @@ export function AIMonitor() {
 
 			const response = await fetch(`https://api.torn.com/user/?selections=profile&key=${apiKey}`)
 			
-			// Check if response is ok before trying to parse JSON
 			if (!response.ok) {
 				throw new Error(`HTTP error! status: ${response.status}`)
 			}
 
-			// Check content type to ensure it's JSON
 			const contentType = response.headers.get('content-type')
 			if (!contentType || !contentType.includes('application/json')) {
 				throw new Error('Server did not return JSON')
@@ -47,28 +45,37 @@ export function AIMonitor() {
 			const data = await response.json()
 
 			if (data.error) {
-				throw new Error(data.error)
+				throw new Error(data.error.message || data.error)
 			}
 
-			// Ensure data is an object before processing
-			if (typeof data !== 'object' || data === null) {
-				throw new Error('Invalid data format received from server')
+			let players: AIPlayer[] = []
+			if (data && typeof data === 'object' && data.player_id) {
+				if (data.status?.state === 'Abroad') {
+					players = [{
+						id: String(data.player_id),
+						name: data.name || 'Unknown',
+						level: data.level || 0,
+						status: data.status.state,
+						timeLeft: data.status.until - Math.floor(Date.now() / 1000),
+						xid: String(data.player_id)
+					}]
+				}
+			} else if (data && typeof data === 'object') {
+				players = Object.entries(data)
+					.filter(([_, player]: [string, any]) => 
+						player && 
+						typeof player === 'object' && 
+						player.status?.state === 'Abroad'
+					)
+					.map(([id, player]: [string, any]) => ({
+						id,
+						name: player.name || 'Unknown',
+						level: player.level || 0,
+						status: player.status.state,
+						timeLeft: player.status.until - Math.floor(Date.now() / 1000),
+						xid: player.player_id || id
+					}))
 			}
-
-			const players = Object.entries(data)
-				.filter(([_, player]: [string, any]) => 
-					player && 
-					typeof player === 'object' && 
-					player.status?.state === 'Abroad'
-				)
-				.map(([id, player]: [string, any]) => ({
-					id,
-					name: player.name || 'Unknown',
-					level: player.level || 0,
-					status: player.status.state,
-					timeLeft: player.status.until - Math.floor(Date.now() / 1000),
-					xid: player.player_id || id
-				}))
 
 			setAIPlayers(players)
 			setLastUpdate(new Date())
@@ -113,8 +120,8 @@ export function AIMonitor() {
 		return <div className="error">Error: {error}</div>
 	}
 
-	if (!aiPlayers.length) {
-		return <div className="no-data">No players currently abroad</div>
+	if (!aiPlayers.length && !loading && !error) {
+		return <div className="no-data">No players currently abroad or no data available.</div>
 	}
 
 	return (

@@ -33,76 +33,65 @@ export default function TornScripts() {
     const [scripts, setScripts] = useState<Script[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [partialWarning, setPartialWarning] = useState<string | null>(null);
+
+    const loadScripts = async () => {
+        setLoading(true);
+        setError(null);
+        setPartialWarning(null);
+        const scriptDirs = [
+            "clean-travel",
+            "dont-train",
+            "fill-vault",
+            "filter-elimination",
+            "filter-faction",
+            "filter-hof",
+            "filter-hospital",
+            "max-buy",
+            "racing-filter",
+            "racing-prefills",
+            "racing-select-car",
+            "dont-hunt"
+        ];
+        const loadedScripts: Script[] = [];
+        let failedCount = 0;
+        for (const dir of scriptDirs) {
+            try {
+                const response = await fetch(`/torn_userscripts/${dir}/${dir.replace(/-/g, '_')}.js`);
+                if (!response.ok) {
+                    throw new Error(`Failed to load script from ${dir}: ${response.statusText}`);
+                }
+                const code = await response.text();
+                const nameMatch = code.match(/@name\s+(.+)/);
+                const descriptionMatch = code.match(/@description\s+(.+)/);
+                const downloadURLMatch = code.match(/@downloadURL\s+(.+)/);
+                const name = nameMatch ? nameMatch[1].trim() : dir;
+                const description = descriptionMatch ? descriptionMatch[1].trim() : "";
+                const url = downloadURLMatch ? downloadURLMatch[1].trim() : `https://github.com/cryosis7/torn_userscripts/tree/master/${dir}`;
+                let category = "Other";
+                if (dir.includes("travel")) category = "Travel";
+                else if (dir.includes("train")) category = "Training";
+                else if (dir.includes("vault")) category = "Banking";
+                else if (dir.includes("filter")) category = "Filtering";
+                else if (dir.includes("racing")) category = "Racing";
+                else if (dir.includes("buy")) category = "Shopping";
+                else if (dir.includes("clean")) category = "UI Enhancement";
+                loadedScripts.push({ name, description, url, category, code });
+            } catch (error) {
+                console.error(`Failed to load script from ${dir}:`, error);
+                failedCount++;
+            }
+        }
+        setScripts(loadedScripts);
+        setLoading(false);
+        if (failedCount === scriptDirs.length) {
+            setError("Failed to load all scripts. Please try again later.");
+        } else if (failedCount > 0) {
+            setPartialWarning(`Failed to load ${failedCount} script(s). Some scripts may be missing.`);
+        }
+    };
 
     useEffect(() => {
-        // Load scripts from the repository
-        const loadScripts = async () => {
-            setLoading(true);
-            setError(null);
-
-            const scriptDirs = [
-                "clean-travel",
-                "dont-train",
-                "fill-vault",
-                "filter-elimination",
-                "filter-faction",
-                "filter-hof",
-                "filter-hospital",
-                "max-buy",
-                "racing-filter",
-                "racing-prefills",
-                "racing-select-car",
-                "dont-hunt"
-            ];
-
-            const loadedScripts: Script[] = [];
-
-            for (const dir of scriptDirs) {
-                try {
-                    const response = await fetch(`/torn_userscripts/${dir}/${dir.replace(/-/g, '_')}.js`);
-                    
-                    if (!response.ok) {
-                        throw new Error(`Failed to load script from ${dir}: ${response.statusText}`);
-                    }
-
-                    const code = await response.text();
-                    
-                    // Extract metadata from the userscript header
-                    const nameMatch = code.match(/@name\s+(.+)/);
-                    const descriptionMatch = code.match(/@description\s+(.+)/);
-                    const downloadURLMatch = code.match(/@downloadURL\s+(.+)/);
-                    
-                    const name = nameMatch ? nameMatch[1].trim() : dir;
-                    const description = descriptionMatch ? descriptionMatch[1].trim() : "";
-                    const url = downloadURLMatch ? downloadURLMatch[1].trim() : `https://github.com/cryosis7/torn_userscripts/tree/master/${dir}`;
-                    
-                    // Determine category based on script name and description
-                    let category = "Other";
-                    if (dir.includes("travel")) category = "Travel";
-                    else if (dir.includes("train")) category = "Training";
-                    else if (dir.includes("vault")) category = "Banking";
-                    else if (dir.includes("filter")) category = "Filtering";
-                    else if (dir.includes("racing")) category = "Racing";
-                    else if (dir.includes("buy")) category = "Shopping";
-                    else if (dir.includes("clean")) category = "UI Enhancement";
-
-                    loadedScripts.push({
-                        name,
-                        description,
-                        url,
-                        category,
-                        code
-                    });
-                } catch (error) {
-                    console.error(`Failed to load script from ${dir}:`, error);
-                    setError(`Failed to load some scripts. Please try again later.`);
-                }
-            }
-
-            setScripts(loadedScripts);
-            setLoading(false);
-        };
-
         loadScripts();
     }, []);
 
@@ -162,6 +151,7 @@ export default function TornScripts() {
         return (
             <div className="torn-scripts">
                 <div className="error">{error}</div>
+                <button onClick={loadScripts} className="retry-btn">Retry</button>
             </div>
         );
     }
@@ -169,6 +159,7 @@ export default function TornScripts() {
     return (
         <div className="torn-scripts">
             <h2>Torn City Userscripts</h2>
+            {partialWarning && <div className="warning">{partialWarning}</div>}
             
             <div className="scripts-controls">
                 <div className="search-box">

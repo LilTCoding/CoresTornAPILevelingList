@@ -128,7 +128,7 @@ function TornAccount() {
 			setLoading(true);
 			setError(null);
 			const response = await fetch(
-				`https://api.torn.com/user/?selections=profile,basic,education,workstats,stocks,bazaar,display&key=${apiKey}`
+				`https://api.torn.com/user/?selections=profile,basic,education,workstats,personalstats,stocks,bazaar,display&key=${apiKey}`
 			);
 			
 			if (!response.ok) {
@@ -141,11 +141,7 @@ function TornAccount() {
 				throw new Error(data.error.message);
 			}
 
-			// Validate the data structure
-			if (!data.stats || typeof data.stats !== 'object') {
-				throw new Error('Invalid data structure: stats object is missing or invalid');
-			}
-
+			// Do not throw if stats is missing; just set the data
 			setUserData(data);
 			setLastUpdate(new Date());
 			toast.success('Account data updated');
@@ -222,7 +218,7 @@ function TornAccount() {
 		);
 	}
 
-	if (!userData || !userData.stats) {
+	if (!userData) {
 		return (
 			<div className="torn-account">
 				<div className="no-data">No account data available</div>
@@ -452,28 +448,37 @@ function TornAccount() {
 						<CardTitle>Stats</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<div className="info-grid">
-							<div className="info-item">
-								<span className="label">Strength:</span>
-								<span className="value">{userData.stats.strength.toLocaleString()}</span>
+						{userData.stats ? (
+							<div className="info-grid">
+								<div className="info-item">
+									<span className="label">Strength:</span>
+									<span className="value">{userData.stats.strength.toLocaleString()}</span>
+								</div>
+								<div className="info-item">
+									<span className="label">Defense:</span>
+									<span className="value">{userData.stats.defense.toLocaleString()}</span>
+								</div>
+								<div className="info-item">
+									<span className="label">Speed:</span>
+									<span className="value">{userData.stats.speed.toLocaleString()}</span>
+								</div>
+								<div className="info-item">
+									<span className="label">Dexterity:</span>
+									<span className="value">{userData.stats.dexterity.toLocaleString()}</span>
+								</div>
+								<div className="info-item">
+									<span className="label">Total:</span>
+									<span className="value">{userData.stats.total.toLocaleString()}</span>
+								</div>
 							</div>
-							<div className="info-item">
-								<span className="label">Defense:</span>
-								<span className="value">{userData.stats.defense.toLocaleString()}</span>
+						) : (
+							<div className="info-grid">
+								<div className="info-item">
+									<span className="label">Stats:</span>
+									<span className="value">Not available for this account or API key.</span>
+								</div>
 							</div>
-							<div className="info-item">
-								<span className="label">Speed:</span>
-								<span className="value">{userData.stats.speed.toLocaleString()}</span>
-							</div>
-							<div className="info-item">
-								<span className="label">Dexterity:</span>
-								<span className="value">{userData.stats.dexterity.toLocaleString()}</span>
-							</div>
-							<div className="info-item">
-								<span className="label">Total:</span>
-								<span className="value">{userData.stats.total.toLocaleString()}</span>
-							</div>
-						</div>
+						)}
 					</CardContent>
 				</Card>
 
