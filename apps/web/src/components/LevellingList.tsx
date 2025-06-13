@@ -46,6 +46,22 @@ interface TornApiResponse {
 
 const DEFAULT_XIDS = [3105330, 2660513, 3522824, 3389005, 3517639, 2096673, 3743639, 3733824];
 
+// Helper to group users by exact level
+function groupByExactLevel(statuses: UserStatus[]) {
+	const groups: Record<string, UserStatus[]> = {};
+	statuses.forEach((user) => {
+		if (user.level === undefined || user.level === null) {
+			if (!groups['Unknown Level']) groups['Unknown Level'] = [];
+			groups['Unknown Level'].push(user);
+		} else {
+			const label = `Level ${user.level}`;
+			if (!groups[label]) groups[label] = [];
+			groups[label].push(user);
+		}
+	});
+	return groups;
+}
+
 export default function LevellingList() {
 	const { apiKey, setApiKey, xids, setXids } = useStore();
 	const [statuses, setStatuses] = useState<UserStatus[]>([]);
@@ -158,6 +174,8 @@ export default function LevellingList() {
 		return `${minutes}m ${seconds}s`;
 	};
 
+	const levelGroups = groupByExactLevel(statuses);
+
 	return (
 		<div className="container mx-auto p-4">
 			<div className="mb-4 rounded-lg bg-gray-800 p-4 shadow-lg">
@@ -216,91 +234,96 @@ export default function LevellingList() {
 			</div>
 
 			<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-				{statuses.map((status) => (
-					<div
-						key={status.xid}
-						className="rounded-lg bg-gray-800 p-4 shadow-lg"
-					>
-						<div className="mb-4 flex items-center justify-between">
-							<h3 className="text-lg font-semibold text-white">{status.name}</h3>
-							<button
-								onClick={() => removeXid(status.xid.toString())}
-								className="text-red-500 hover:text-red-600"
-							>
-								×
-							</button>
-						</div>
-						<div className="space-y-2">
-							<p className="text-gray-300">Level: {status.level || "Unknown"}</p>
-							<p className="text-gray-300">
-								Status: <span className={getStatusColor(status.status)}>{status.status || "Unknown"}</span>
-							</p>
-							{status.hospital_reason && (
-								<p className="text-gray-300">Reason: {status.hospital_reason}</p>
-							)}
-							{status.hosp_out && (
-								<p className="text-gray-300">Time Left: {formatTimeLeft(status.hosp_out)}</p>
-							)}
-							{status.travel && (
-								<p className="text-gray-300">
-									Traveling to: {status.travel.destination}
-									<br />
-									Returns: {formatTime(status.travel.timestamp)}
-								</p>
-							)}
-							{status.faction && (
-								<p className="text-gray-300">
-									Faction: {status.faction.faction_name}
-									<br />
-									Position: {status.faction.position}
-								</p>
-							)}
-							<p className="text-gray-300">Last Action: {formatTime(status.lastAction)}</p>
-							{status.error && <p className="text-red-500">{status.error}</p>}
-						</div>
-						<div className="mt-4 flex flex-wrap gap-2">
-							<a
-								href={`https://www.torn.com/profiles.php?XID=${status.xid}`}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="rounded bg-gray-700 px-3 py-1 text-white hover:bg-gray-600"
-							>
-								Profile
-							</a>
-							<a
-								href={`https://www.torn.com/messages.php#/p=compose&XID=${status.xid}`}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="rounded bg-gray-700 px-3 py-1 text-white hover:bg-gray-600"
-							>
-								Message
-							</a>
-							<a
-								href={`https://www.torn.com/trade.php#step=start&userID=${status.xid}`}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="rounded bg-gray-700 px-3 py-1 text-white hover:bg-gray-600"
-							>
-								Trade
-							</a>
-							<a
-								href={`https://www.torn.com/sendcash.php#/XID=${status.xid}`}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="rounded bg-gray-700 px-3 py-1 text-white hover:bg-gray-600"
-							>
-								Send Money
-							</a>
-							{status.status?.toLowerCase() !== "hospital" && (
-								<a
-									href={`https://www.torn.com/loader.php?sid=attack&user2ID=${status.xid}`}
-									target="_blank"
-									rel="noopener noreferrer"
-									className="rounded bg-red-600 px-3 py-1 text-white hover:bg-red-700"
-								>
-									Attack
-								</a>
-							)}
+				{Object.keys(levelGroups).sort((a, b) => {
+					if (a === 'Unknown Level') return 1;
+					if (b === 'Unknown Level') return -1;
+					// Extract level number for sorting
+					const aLevel = parseInt(a.match(/\d+/)?.[0] || '0', 10);
+					const bLevel = parseInt(b.match(/\d+/)?.[0] || '0', 10);
+					return aLevel - bLevel;
+				}).map((group) => (
+					<div key={group} className="level-group">
+						<h2 className="level-group-heading">{group}</h2>
+						<div className="profiles-grid">
+							{levelGroups[group].map((user) => (
+								<div key={user.xid} className="profile-card">
+									<div className="profile-header">
+										<h3>{user.name || user.xid} {user.level !== undefined ? `(Level ${user.level})` : ''}</h3>
+									</div>
+									<div className="space-y-2">
+										<p className="text-gray-300">Level: {user.level || "Unknown"}</p>
+										<p className="text-gray-300">
+											Status: <span className={getStatusColor(user.status)}>{user.status || "Unknown"}</span>
+										</p>
+										{user.hospital_reason && (
+											<p className="text-gray-300">Reason: {user.hospital_reason}</p>
+										)}
+										{user.hosp_out && (
+											<p className="text-gray-300">Time Left: {formatTimeLeft(user.hosp_out)}</p>
+										)}
+										{user.travel && (
+											<p className="text-gray-300">
+												Traveling to: {user.travel.destination}
+												<br />
+												Returns: {formatTime(user.travel.timestamp)}
+											</p>
+										)}
+										{user.faction && (
+											<p className="text-gray-300">
+												Faction: {user.faction.faction_name}
+												<br />
+												Position: {user.faction.position}
+											</p>
+										)}
+										<p className="text-gray-300">Last Action: {formatTime(user.lastAction)}</p>
+										{user.error && <p className="text-red-500">{user.error}</p>}
+									</div>
+									<div className="mt-4 flex flex-wrap gap-2">
+										<a
+											href={`https://www.torn.com/profiles.php?XID=${user.xid}`}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="rounded bg-gray-700 px-3 py-1 text-white hover:bg-gray-600"
+										>
+											Profile
+										</a>
+										<a
+											href={`https://www.torn.com/messages.php#/p=compose&XID=${user.xid}`}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="rounded bg-gray-700 px-3 py-1 text-white hover:bg-gray-600"
+										>
+											Message
+										</a>
+										<a
+											href={`https://www.torn.com/trade.php#step=start&userID=${user.xid}`}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="rounded bg-gray-700 px-3 py-1 text-white hover:bg-gray-600"
+										>
+											Trade
+										</a>
+										<a
+											href={`https://www.torn.com/sendcash.php#/XID=${user.xid}`}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="rounded bg-gray-700 px-3 py-1 text-white hover:bg-gray-600"
+										>
+											Send Money
+										</a>
+										{user.status?.toLowerCase() !== "hospital" && (
+											<a
+												href={`https://www.torn.com/loader.php?sid=attack&user2ID=${user.xid}`}
+												target="_blank"
+												rel="noopener noreferrer"
+												className="rounded bg-red-600 px-3 py-1 text-white hover:bg-red-700"
+											>
+												Attack
+											</a>
+										)}
+									</div>
+								</div>
+							))}
 						</div>
 					</div>
 				))}
