@@ -19,6 +19,8 @@ export function AIMonitor() {
 	const [error, setError] = useState<string | null>(null)
 	const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
 	const [autoUpdate, setAutoUpdate] = useState(true)
+	const [scanning, setScanning] = useState(false)
+	const [scanProgress, setScanProgress] = useState(0)
 
 	const fetchAIStatus = async () => {
 		if (!apiKey) {
@@ -87,6 +89,66 @@ export function AIMonitor() {
 		}
 	}
 
+	const scanHallOfFame = async () => {
+		if (!apiKey) return
+		setScanning(true)
+		setScanProgress(0)
+		setError(null)
+		setAIPlayers([])
+		const startPage = 525850
+		const endPage = 688880
+		let allPlayers: any[] = []
+		let totalPages = endPage - startPage + 1
+		try {
+			for (let page = startPage; page <= endPage; page++) {
+				const response = await fetch(`https://api.torn.com/halloffame/?selections=ranked&key=${apiKey}&page=${page}`)
+				const data = await response.json()
+				if (data.error) continue
+				const pagePlayers = Object.entries(data)
+					.filter(([_, player]: [string, any]) => player && typeof player === 'object' && [4,5,6].includes(player.level))
+					.map(([id, player]: [string, any]) => ({
+						id,
+						name: player.name || 'Unknown',
+						level: player.level || 0,
+						xid: player.player_id || id
+					}))
+				allPlayers = allPlayers.concat(pagePlayers)
+				setScanProgress(Math.round(((page - startPage + 1) / totalPages) * 100))
+				// To avoid rate limits, pause every 10 pages
+				if ((page - startPage + 1) % 10 === 0) await new Promise(res => setTimeout(res, 1000))
+			}
+			// Now fetch live status for each player (batch in 10s)
+			let aiResults: AIPlayer[] = []
+			for (let i = 0; i < allPlayers.length; i += 10) {
+				const batch = allPlayers.slice(i, i + 10)
+				const statuses = await Promise.all(batch.map(async player => {
+					try {
+						const resp = await fetch(`https://api.torn.com/user/${player.xid}?selections=profile&key=${apiKey}`)
+						const d = await resp.json()
+						return {
+							...player,
+							status: d.status?.state || 'Unknown',
+							timeLeft: d.status?.until ? d.status.until - Math.floor(Date.now() / 1000) : 0,
+							xid: player.xid
+						}
+					} catch {
+						return { ...player, status: 'Unknown', timeLeft: 0, xid: player.xid }
+					}
+				}))
+				aiResults = aiResults.concat(statuses)
+				setAIPlayers([...aiResults])
+				setScanProgress(100)
+				await new Promise(res => setTimeout(res, 500))
+			}
+			setLastUpdate(new Date())
+		} catch (err) {
+			setError('Error scanning Hall of Fame')
+		} finally {
+			setScanning(false)
+			setScanProgress(0)
+		}
+	}
+
 	useEffect(() => {
 		fetchAIStatus()
 
@@ -132,6 +194,9 @@ export function AIMonitor() {
 					<button onClick={fetchAIStatus} disabled={loading}>
 						{loading ? 'Updating...' : 'Refresh'}
 					</button>
+					<button onClick={scanHallOfFame} disabled={scanning || loading} style={{ background: '#e67e22' }}>
+						{scanning ? `Scanning... (${scanProgress}%)` : 'Scan Hall of Fame'}
+					</button>
 					<label>
 						<input
 							type="checkbox"
@@ -154,6 +219,9 @@ export function AIMonitor() {
 						<div className="player-info">
 							<h3>{player.name}</h3>
 							<span className="level">Level {player.level}</span>
+							<span className={player.status === 'hospital' ? 'hospital-status led-green' : 'hospital-status chrome-red'}>
+								{player.status === 'hospital' ? 'In Hospital' : 'Not in Hospital'}
+							</span>
 						</div>
 						
 						<div className="status-info">
@@ -180,14 +248,16 @@ export function AIMonitor() {
 							>
 								Profile
 							</a>
-							<a 
-								href={`https://www.torn.com/messages.php#/p=compose&XID=${player.xid}`}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="action-button message-button"
-							>
-								Message
-							</a>
+							{player.status !== 'hospital' && player.status !== 'traveling' && player.status !== 'federal' && (
+								<a 
+									href={`https://www.torn.com/loader.php?sid=attack&user2ID=${player.xid}`}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="action-button message-button"
+								>
+									Attack
+								</a>
+							)}
 							<a 
 								href={`https://www.torn.com/trade.php#step=start&userID=${player.xid}`}
 								target="_blank"
