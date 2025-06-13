@@ -194,15 +194,13 @@ function CommandPrompt() {
           break;
         }
         sent++;
-        if (i % 10 === 0 || i === totalAmount) {
-          setOutput(prev => [...prev, `Sent $${sent} so far...`]);
-        }
+        setOutput(prev => [...prev, `Send #${i}: Success! Sent $1. Total sent: $${sent}`]);
       } catch (err) {
         setOutput(prev => [...prev, `Send #${i}: Network error`]);
         break;
       }
-      // To avoid rate limits, pause every 10 sends
-      if (i % 10 === 0) await new Promise(res => setTimeout(res, 1000));
+      // Wait 10 seconds after each send
+      await new Promise(res => setTimeout(res, 10000));
     }
     setOutput(prev => [...prev, `Spam Send complete. Total sent: $${sent}`]);
   };
